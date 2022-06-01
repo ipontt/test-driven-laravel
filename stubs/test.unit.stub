@@ -1,0 +1,7 @@
+<?php
+
+use function Pest\Laravel\get;
+
+test('example')
+    ->expect(true)
+    ->toBe(true);
