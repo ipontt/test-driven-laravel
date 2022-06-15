@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 
 class ConcertController extends Controller
 {
-    public function show($id): Response
+    public function show(int $id): Response
     {
         $concert = Concert::published()->findOrFail($id);
 

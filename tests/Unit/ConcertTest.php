@@ -27,3 +27,13 @@ test('concerts with a published_at date are published', function () {
         ->contains($publishedConcertB)->toBe(true)
         ->contains($unpublishedConcert)->toBe(false);
 });
+
+it('can order concert tickets', function () {
+    $concert = Concert::factory()->create();
+
+    $order = $concert->orderTickets(email: 'jane@example.com', ticket_quantity: 3);
+
+    expect($order)
+        ->email->toBe('jane@example.com')
+        ->tickets->toHaveCount(3);
+});
