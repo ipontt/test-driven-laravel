@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Exceptions\PaymentFailedException;
+use App\Exceptions\NotEnoughTicketsException;
 use App\Models\Concert;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -24,15 +25,18 @@ class ConcertOrdersController extends Controller
         ]);
 
         try {
+            $order = $concert->orderTickets(email: $validated['email'], ticket_quantity: $validated['ticket_quantity']);
+
             $this->paymentGateway->charge(
                 amount: $validated['ticket_quantity'] * $concert->ticket_price,
                 token: $validated['payment_token']
             );
 
-            $concert->orderTickets(email: $validated['email'], ticket_quantity: $validated['ticket_quantity']);
-
             return response()->json(status: Response::HTTP_CREATED);
         } catch (PaymentFailedException $e) {
+            $order->cancel();
+            return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (NotEnoughTicketsException $e) {
             return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }

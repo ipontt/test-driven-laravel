@@ -12,6 +12,7 @@ class Order extends Model
 
     protected $guarded = [];
 
+    /* RELATIONSHIPS */
     public function concert(): BelongsTo
     {
         return $this->belongsTo(Concert::class);
@@ -20,5 +21,18 @@ class Order extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    /* METHODS */
+    public function cancel(): void
+    {
+        $this->tickets()->cursor()->each->release();
+
+        $this->delete();
+    }
+
+    public function ticketQuantity(): int
+    {
+        return $this->tickets()->count();
     }
 }

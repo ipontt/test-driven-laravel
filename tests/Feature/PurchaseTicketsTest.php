@@ -3,7 +3,9 @@
 use App\Billing\Concerns\PaymentGateway;
 use App\Billing\FakePaymentGateway;
 use App\Models\Concert;
+use Illuminate\Http\Response;
 use function Pest\Laravel\postJson;
+
 
 beforeEach(function () {
 	$this->paymentGateway = new FakePaymentGateway;
@@ -14,52 +16,67 @@ beforeEach(function () {
 });
 
 test('customer can purchase tickets for published concerts', function () {
-	$concert = Concert::factory()->published()->create(['ticket_price' => 3250]);
+	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
 
-	postJson("/concerts/{$concert->id}/orders", [
+	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
 		'ticket_quantity' => 3,
 		'payment_token' => $this->paymentGateway->getValidTestToken(),
-	])->assertStatus(201);
+	]);
 
+	$response->assertStatus(Response::HTTP_CREATED);
 	expect($this->paymentGateway->totalCharges())->toBe(3250 * 3);
-	$order = $concert->orders()->where('email', 'john@example.com')->first();
-
-	expect($order)
+	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
+	expecT($concert->ordersFor(email: 'john@example.com')->first())
 		->not->toBeNull()
-		->tickets->toHaveCount(3);
+		->ticketQuantity()->toBe(3);
 });
 
 test('customer cannot purchase tickets for unpublished concerts', function () {
-	$concert = Concert::factory()->unpublished()->create();
+	$concert = Concert::factory()->unpublished()->create()->addTickets(3);
 
-	postJson("/concerts/{$concert->id}/orders", [
+	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
 		'ticket_quantity' => 3,
 		'payment_token' => $this->paymentGateway->getValidTestToken(),
-	])->assertStatus(404);
+	]);
 
-	expect($concert)->orders->toHaveCount(0);
+	$response->assertStatus(Response::HTTP_NOT_FOUND);
 	expect($this->paymentGateway->totalCharges())->toBe(0);
+	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
 });
 
 test('an order is not created if payment fails', function () {
-	$concert = Concert::factory()->published()->create(['ticket_price' => 3250]);
+	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
 
-	postJson("/concerts/{$concert->id}/orders", [
+	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
 		'ticket_quantity' => 3,
 		'payment_token' => 'invalid token',
-	])->assertStatus(422);
+	]);
 
+	$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 	expect($this->paymentGateway->totalCharges())->toBe(0);
-	$order = $concert->orders()->where('email', 'john@example.com')->first();
+	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
+});
 
-	expect($order)->toBeNull();
+test('cannot purchase more tickets than are available', function () {
+	$concert = Concert::factory()->published()->create()->addTickets(50);
+
+	$response = postJson("/concerts/{$concert->id}/orders", [
+		'email' => 'john@example.com',
+		'ticket_quantity' => 51,
+		'payment_token' => $this->paymentGateway->getValidTestToken(),
+	]);
+
+	$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+	expect($this->paymentGateway->totalCharges())->toBe(0);
+	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
+	expect($concert->ticketsRemaining())->toBe(50);
 });
 
 test('an email is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create();
+	$concert = Concert::factory()->published()->create()->addTickets(3);
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'ticket_quantity' => 3,
@@ -78,7 +95,7 @@ test('a valid email is required to purchase tickets', function ($email) {
 })->with([null, 'not an email', 1, new StdClass]);
 
 test('ticket quantity is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create();
+	$concert = Concert::factory()->published()->create()->addTickets(3);
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -87,7 +104,7 @@ test('ticket quantity is required to purchase tickets', function () {
 });
 
 test('ticket quantity must be a positive integer. At least 1', function ($ticket_quantity) {
-	$concert = Concert::factory()->published()->create();
+	$concert = Concert::factory()->published()->create()->addTickets(3);
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -97,7 +114,7 @@ test('ticket quantity must be a positive integer. At least 1', function ($ticket
 })->with([0, -1, 'not a number', 1.235, new StdClass]);
 
 test('a payment token is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create();
+	$concert = Concert::factory()->published()->create()->addTickets(3);
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -106,11 +123,11 @@ test('a payment token is required to purchase tickets', function () {
 });
 
 test('the payment token must be valid to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create();
+	$concert = Concert::factory()->published()->create()->addTickets(3);
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
 		'ticket_quantity' => 3,
 		'payment_token' => 'invalid token',
-	])->assertStatus(422);
+	])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 });

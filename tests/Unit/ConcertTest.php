@@ -1,39 +1,73 @@
 <?php
 
+use App\Exceptions\NotEnoughTicketsException;
 use App\Models\Concert;
 use Carbon\Carbon;
 
 it('can get formatted date')
-    ->expect(fn () => Concert::factory()->make(['date' => Carbon::parse('December 13, 2016 8:00pm')]))
-    ->formatted_date->toBe('December 13, 2016');
+	->expect(fn () => Concert::factory()->make(['date' => Carbon::parse('December 13, 2016 8:00pm')]))
+	->formatted_date->toBe('December 13, 2016');
 
 it('can get formatted start time')
-    ->expect(fn () => Concert::factory()->make(['date' => Carbon::parse('December 13, 2016 8:00pm')]))
-    ->formatted_start_time->toBe('8:00pm');
+	->expect(fn () => Concert::factory()->make(['date' => Carbon::parse('December 13, 2016 8:00pm')]))
+	->formatted_start_time->toBe('8:00pm');
 
 it('can get ticket price in dollars')
-    ->expect(fn () => Concert::factory()->make(['ticket_price' => 6750]))
-    ->ticket_price_in_dollars->toBe('67.50');
+	->expect(fn () => Concert::factory()->make(['ticket_price' => 6750]))
+	->ticket_price_in_dollars->toBe('67.50');
 
 test('concerts with a published_at date are published', function () {
-    $publishedConcertA = Concert::factory()->create(['published_at' => Carbon::parse('-1 week')]);
-    $publishedConcertB = Concert::factory()->create(['published_at' => Carbon::parse('-1 week')]);
-    $unpublishedConcert = Concert::factory()->create(['published_at' => null]);
+	$publishedConcertA = Concert::factory()->create(['published_at' => Carbon::parse('-1 week')]);
+	$publishedConcertB = Concert::factory()->create(['published_at' => Carbon::parse('-1 week')]);
+	$unpublishedConcert = Concert::factory()->create(['published_at' => null]);
 
-    $publishedConcerts = Concert::published()->get();
+	$publishedConcerts = Concert::published()->get();
 
-    expect($publishedConcerts)
-        ->contains($publishedConcertA)->toBe(true)
-        ->contains($publishedConcertB)->toBe(true)
-        ->contains($unpublishedConcert)->toBe(false);
+	expect($publishedConcerts)
+		->contains($publishedConcertA)->toBe(true)
+		->contains($publishedConcertB)->toBe(true)
+		->contains($unpublishedConcert)->toBe(false);
 });
 
 it('can order concert tickets', function () {
-    $concert = Concert::factory()->create();
+	$concert = Concert::factory()->create()->addTickets(3);
 
-    $order = $concert->orderTickets(email: 'jane@example.com', ticket_quantity: 3);
+	$order = $concert->orderTickets(email: 'jane@example.com', ticket_quantity: 3);
 
-    expect($order)
-        ->email->toBe('jane@example.com')
-        ->tickets->toHaveCount(3);
+	expect($order)
+		->email->toBe('jane@example.com')
+		->ticketQuantity()->toBe(3);
+});
+
+it('can add tickets', function () {
+	$concert = Concert::factory()->create();
+
+	$concert->addTickets(50);
+
+	expect($concert)->ticketsRemaining()->toBe(50);
+});
+
+test('tickets remaining does not include tickets associated with an order', function () {
+	$concert = Concert::factory()->create()->addTickets(50);
+
+	$concert->orderTickets(email: 'jane@example.com', ticket_quantity: 30);
+
+	expect($concert)->ticketsRemaining()->toBe(20);
+});
+
+test('trying to purchase more tickets than are available triggers an exception', function () {
+	$concert = Concert::factory()->create()->addTickets(10);
+
+	expect(fn () => $concert->orderTickets(email: 'jane@example.com', ticket_quantity: 11))
+		->toThrow(NotEnoughTicketsException::class)
+		->and($concert)->hasOrderFor(email: 'jane@example.com')->toBeFalse();
+});
+
+it('cannot order tickets that have already been purchased', function () {
+	$concert = Concert::factory()->create()->addTickets(10);
+	$concert->orderTickets(email: 'jane@example.com', ticket_quantity: 8);
+
+	expect(fn () => $concert->orderTickets(email: 'john@example.com', ticket_quantity: 3))
+		->toThrow(NotEnoughTicketsException::class)
+		->and($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
 });

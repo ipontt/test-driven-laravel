@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Exceptions\NotEnoughTicketsException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\LazyCollection;
 
 class Concert extends Model
 {
@@ -49,15 +52,50 @@ class Concert extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     /* METHODS */
     public function orderTickets(string $email, int $ticket_quantity): Order
     {
+        $tickets = $this->tickets()->available()->limit($ticket_quantity)->cursor();
+
+        throw_if(exception: NotEnoughTicketsException::class, condition: $ticket_quantity > $tickets->count());
+
         $order = $this->orders()->create(['email' => $email]);
 
-        for ($i = 0; $i < $ticket_quantity; $i++) { 
-            $order->tickets()->create();
-        }
+        $order->tickets()->saveMany($tickets);
 
         return $order;
+    }
+
+    public function addTickets(int $quantity): self
+    {
+        for ($i = 0; $i < $quantity; $i++)
+            $this->tickets()->create();
+
+        return $this;
+    }
+
+    public function ticketsRemaining(): int
+    {
+        return $this->tickets()->available()->count();
+    }
+
+    public function hasOrderFor(string $email): bool
+    {
+        return $this->orders()->where('email', $email)->exists();
+    }
+
+    public function ordersFor(string $email, bool $lazy = true): Collection|LazyCollection
+    {
+        return $this->orders()
+            ->where('email', $email)
+            ->when($lazy,
+                fn (Builder $query) => $query->cursor(),
+                fn (Builder $query) => $query->get(),
+            );
     }
 }
