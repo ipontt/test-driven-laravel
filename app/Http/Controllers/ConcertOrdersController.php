@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Exceptions\PaymentFailedException;
 use App\Exceptions\NotEnoughTicketsException;
+use App\Http\Resources\OrderResource;
 use App\Models\Concert;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -32,7 +33,10 @@ class ConcertOrdersController extends Controller
                 token: $validated['payment_token']
             );
 
-            return response()->json(status: Response::HTTP_CREATED);
+            return response()->json(
+                data: OrderResource::make($order),
+                status: Response::HTTP_CREATED,
+            );
         } catch (PaymentFailedException $e) {
             $order->cancel();
             return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);

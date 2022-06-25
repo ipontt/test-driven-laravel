@@ -4,6 +4,7 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\FakePaymentGateway;
 use App\Models\Concert;
 use Illuminate\Http\Response;
+use Illuminate\Testing\Fluent\AssertableJson;
 use function Pest\Laravel\postJson;
 
 
@@ -24,7 +25,14 @@ test('customer can purchase tickets for published concerts', function () {
 		'payment_token' => $this->paymentGateway->getValidTestToken(),
 	]);
 
-	$response->assertStatus(Response::HTTP_CREATED);
+	$response
+		->assertStatus(Response::HTTP_CREATED)
+		->assertJson(fn (AssertableJson $json) =>
+			$json
+				->where('email', 'john@example.com')
+				->where('ticket_quantity', 3)
+				->where('amount', 3250 * 3)
+		);
 	expect($this->paymentGateway->totalCharges())->toBe(3250 * 3);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
 	expecT($concert->ordersFor(email: 'john@example.com')->first())

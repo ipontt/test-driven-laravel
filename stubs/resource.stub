@@ -3,16 +3,14 @@
 namespace {{ namespace }};
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arrayable;
+use JsonSerializable;
 
 class {{ class }} extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
-    public function toArray($request)
+    /* Transform the resource into an array. */
+    public function toArray($request): Arrayable|JsonSerializable|array
     {
         return parent::toArray($request);
     }
