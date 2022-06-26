@@ -9,13 +9,13 @@ use JsonSerializable;
 
 class OrderResource extends JsonResource
 {
-    /* Transform the resource into an array. */
-    public function toArray($request): Arrayable|JsonSerializable|array
-    {
-        return [
-            'email' => $this->email,
-            'ticket_quantity' => $this->ticketQuantity(),
-            'amount' => $this->ticketQuantity() * $this->concert->ticket_price,
-        ];
-    }
+	/* Transform the resource into an array. */
+	public function toArray($request): Arrayable|JsonSerializable|array
+	{
+		return [
+			'email' => $this->email,
+			'ticket_quantity' => $this->ticketQuantity(),
+			'amount' => $this->amount,
+		];
+	}
 }

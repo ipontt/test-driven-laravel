@@ -5,34 +5,44 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Support\LazyCollection;
 
 class Order extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    protected $guarded = [];
+	protected $guarded = [];
 
-    /* RELATIONSHIPS */
-    public function concert(): BelongsTo
-    {
-        return $this->belongsTo(Concert::class);
-    }
+	public static function forTickets(LazyCollection $tickets, string $email, int $amount): static
+	{
+		$order = static::create(['email' => $email, 'amount' => $amount]);
 
-    public function tickets(): HasMany
-    {
-        return $this->hasMany(Ticket::class);
-    }
+		$order->tickets()->saveMany($tickets);
 
-    /* METHODS */
-    public function cancel(): void
-    {
-        $this->tickets()->cursor()->each->release();
+		return $order;
+	}
 
-        $this->delete();
-    }
+	/* RELATIONSHIPS */
+	public function concert(): BelongsTo
+	{
+		return $this->belongsTo(Concert::class);
+	}
 
-    public function ticketQuantity(): int
-    {
-        return $this->tickets()->count();
-    }
+	public function tickets(): HasMany
+	{
+		return $this->hasMany(Ticket::class);
+	}
+
+	/* METHODS */
+	public function cancel(): void
+	{
+		$this->tickets()->cursor()->each->release();
+
+		$this->delete();
+	}
+
+	public function ticketQuantity(): int
+	{
+		return $this->tickets()->count();
+	}
 }

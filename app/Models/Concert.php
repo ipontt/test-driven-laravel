@@ -8,94 +8,97 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany};
 use Illuminate\Support\LazyCollection;
 
 class Concert extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    protected $guarded = [];
-    protected $dates = ['date'];
+	protected $guarded = [];
+	protected $dates = ['date'];
 
-    /* SCOPES */
-    public function scopePublished(Builder $query): void
-    {
-        $query->whereNotNull('published_at');
-    }
+	/* SCOPES */
+	public function scopePublished(Builder $query): void
+	{
+		$query->whereNotNull('published_at');
+	}
 
-    /* ATTRIBUTES */
-    public function FormattedDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->date->format('F d, Y'),
-        );
-    }
+	/* ATTRIBUTES */
+	public function formattedDate(): Attribute
+	{
+		return Attribute::make(
+			get: fn () => $this->date->format('F d, Y'),
+		);
+	}
 
-    public function FormattedStartTime(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->date->format('g:ia'),
-        );
-    }
+	public function formattedStartTime(): Attribute
+	{
+		return Attribute::make(
+			get: fn () => $this->date->format('g:ia'),
+		);
+	}
 
-    public function TicketPriceInDollars(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => number_format($this->ticket_price / 100, 2),
-        );
-    }
+	public function ticketPriceInDollars(): Attribute
+	{
+		return Attribute::make(
+			get: fn () => number_format($this->ticket_price / 100, 2),
+		);
+	}
 
-    /* RELATIONSHIPS */
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
-    }
+	/* RELATIONSHIPS */
+	public function orders(): BelongsToMany
+	{
+		return $this->belongsToMany(Order::class, 'tickets');
+	}
 
-    public function tickets(): HasMany
-    {
-        return $this->hasMany(Ticket::class);
-    }
+	public function tickets(): HasMany
+	{
+		return $this->hasMany(Ticket::class);
+	}
 
-    /* METHODS */
-    public function orderTickets(string $email, int $ticket_quantity): Order
-    {
-        $tickets = $this->tickets()->available()->limit($ticket_quantity)->cursor();
+	/* METHODS */
+	public function orderTickets(string $email, int $ticket_quantity): Order
+	{
+		$tickets = $this->findTickets($ticket_quantity);
 
-        throw_if(exception: NotEnoughTicketsException::class, condition: $ticket_quantity > $tickets->count());
+		return $this->createOrder($email, $tickets);
+	}
 
-        $order = $this->orders()->create(['email' => $email]);
+	public function findTickets(int $quantity): LazyCollection
+	{
+		$tickets = $this->tickets()->available()->limit($quantity)->cursor();
 
-        $order->tickets()->saveMany($tickets);
+		throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
 
-        return $order;
-    }
+		return $tickets;
+	}
 
-    public function addTickets(int $quantity): self
-    {
-        for ($i = 0; $i < $quantity; $i++)
-            $this->tickets()->create();
+	public function createOrder(string $email, LazyCollection $tickets): Order
+	{
+		return Order::forTickets(tickets: $tickets, email: $email, amount: $tickets->sum('price'));
+	}
 
-        return $this;
-    }
+	public function addTickets(int $quantity): self
+	{
+		for ($i = 0; $i < $quantity; $i++)
+			$this->tickets()->create();
 
-    public function ticketsRemaining(): int
-    {
-        return $this->tickets()->available()->count();
-    }
+		return $this;
+	}
 
-    public function hasOrderFor(string $email): bool
-    {
-        return $this->orders()->where('email', $email)->exists();
-    }
+	public function ticketsRemaining(): int
+	{
+		return $this->tickets()->available()->count();
+	}
 
-    public function ordersFor(string $email, bool $lazy = true): Collection|LazyCollection
-    {
-        return $this->orders()
-            ->where('email', $email)
-            ->when($lazy,
-                fn (Builder $query) => $query->cursor(),
-                fn (Builder $query) => $query->get(),
-            );
-    }
+	public function hasOrderFor(string $email): bool
+	{
+		return $this->orders()->where('email', $email)->exists();
+	}
+
+	public function ordersFor(string $email): LazyCollection
+	{
+		return $this->orders()->where('email', $email)->cursor();
+	}
 }
