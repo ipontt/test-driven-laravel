@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 class FakePaymentGateway implements PaymentGateway
 {
 	private Collection $charges;
+	private $beforeFirstChargeCallback;
 
 	public function __construct()
 	{
@@ -22,7 +23,9 @@ class FakePaymentGateway implements PaymentGateway
 
 	public function charge(int $amount, string $token): void
 	{
-		if ($token !== $this->getValidTestToken()) throw new PaymentFailedException('Invalid Payment Token');
+		$this->handleCallbacks();
+
+		throw_if(exception: PaymentFailedException::class, condition: $token !== $this->getValidTestToken(), message: 'Invalid Payment Token');
 
 		$this->charges->push($amount);
 	}
@@ -30,5 +33,19 @@ class FakePaymentGateway implements PaymentGateway
 	public function totalCharges(): int
 	{
 		return $this->charges->sum();
+	}
+
+	public function beforeFirstCharge(callable $callback): void
+	{
+		$this->beforeFirstChargeCallback = $callback;
+	}
+
+	private function handleCallbacks(): void
+	{
+		if ($this->beforeFirstChargeCallback !== null) {
+			$callback = $this->beforeFirstChargeCallback;
+			$this->beforeFirstChargeCallback = null;
+			$callback($this);
+		}
 	}
 }

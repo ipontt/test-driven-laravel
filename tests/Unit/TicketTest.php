@@ -11,3 +11,12 @@ it('can be released from an Order associated to it', function (int $ticket_quant
 		->each->release()
 		->each(fn (Ticket $ticket) => expect($ticket)->order_id->toBeNull());
 })->with([1, 2, 3, 4, 5]);
+
+it('can be reserved', function () {
+	$ticket = Ticket::factory()->for(Concert::factory())->create();
+	expect($ticket)->reserved_at->toBeNull();
+
+	$ticket->reserve();
+
+	expect($ticket)->reserved_at->not->toBeNull();
+});

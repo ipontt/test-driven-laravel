@@ -31,9 +31,9 @@ test('customer can purchase tickets for published concerts', function () {
 			$json
 				->where('email', 'john@example.com')
 				->where('ticket_quantity', 3)
-				->where('amount', 3250 * 3)
+				->where('amount', 9750)
 		);
-	expect($this->paymentGateway->totalCharges())->toBe(3250 * 3);
+	expect($this->paymentGateway->totalCharges())->toBe(9750);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
 	expecT($concert->ordersFor(email: 'john@example.com')->first())
 		->not->toBeNull()
@@ -52,6 +52,34 @@ test('customer cannot purchase tickets for unpublished concerts', function () {
 	$response->assertStatus(Response::HTTP_NOT_FOUND);
 	expect($this->paymentGateway->totalCharges())->toBe(0);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
+});
+
+test('customer cannot purchase tickets that another customer is trying to purchase', function () {
+	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
+
+	$this->paymentGateway->beforeFirstCharge(function ($paymentGateway) use ($concert){
+		$response = postJson("/concerts/{$concert->id}/orders", [
+			'email' => 'person_B_@example.com',
+			'ticket_quantity' => 1,
+			'payment_token' => $this->paymentGateway->getValidTestToken(),
+		]);
+
+		$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+		expect($this->paymentGateway->totalCharges())->toBe(0);
+		expect($concert)->hasOrderFor(email: 'person_B_@example.com')->toBeFalse();
+	});
+
+	$response = postJson("/concerts/{$concert->id}/orders", [
+		'email' => 'person_A_@example.com',
+		'ticket_quantity' => 3,
+		'payment_token' => $this->paymentGateway->getValidTestToken(),
+	]);
+
+	expect($this->paymentGateway->totalCharges())->toBe(9750);
+	expect($concert)->hasOrderFor(email: 'person_A_@example.com')->toBeTrue();
+	expecT($concert->ordersFor(email: 'person_A_@example.com')->first())
+		->not->toBeNull()
+		->ticketQuantity()->toBe(3);
 });
 
 test('an order is not created if payment fails', function () {

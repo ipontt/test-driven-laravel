@@ -71,3 +71,13 @@ it('cannot order tickets that have already been purchased', function () {
 		->toThrow(NotEnoughTicketsException::class)
 		->and($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
 });
+
+it('can reserve tickets', function () {
+	$concert = Concert::factory()->create()->addTickets(3);
+	expect($concert)->ticketsRemaining()->toBe(3);
+
+	$reservedTickets = $concert->reserveTickets(2);
+
+	expect($reservedTickets)->count()->toBe(2)
+		->and($concert)->ticketsRemaining()->toBe(1);
+});

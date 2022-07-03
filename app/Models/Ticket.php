@@ -17,7 +17,7 @@ class Ticket extends Model
 	/* SCOPES */
 	public function scopeAvailable(Builder $query): void
 	{
-		$query->whereNull('order_id');
+		$query->whereNull('order_id')->whereNull('reserved_at');
 	}
 
 	/* ATTRIBUTES */
@@ -43,5 +43,10 @@ class Ticket extends Model
 	public function release(): void
 	{
 		$this->order()->dissociate()->save();
+	}
+
+	public function reserve(): void
+	{
+		$this->update(['reserved_at' => now()]);
 	}
 }

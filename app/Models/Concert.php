@@ -6,7 +6,6 @@ use App\Exceptions\NotEnoughTicketsException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany};
 use Illuminate\Support\LazyCollection;
@@ -42,7 +41,7 @@ class Concert extends Model
 	public function ticketPriceInDollars(): Attribute
 	{
 		return Attribute::make(
-			get: fn () => number_format($this->ticket_price / 100, 2),
+			get: fn () => number_format(num: $this->ticket_price / 100, decimals: 2),
 		);
 	}
 
@@ -65,9 +64,14 @@ class Concert extends Model
 		return $this->createOrder($email, $tickets);
 	}
 
+	public function reserveTickets(int $quantity): LazyCollection
+	{
+		return $this->findTickets($quantity)->each->reserve();
+	}
+
 	public function findTickets(int $quantity): LazyCollection
 	{
-		$tickets = $this->tickets()->available()->limit($quantity)->cursor();
+		$tickets = $this->tickets()->available()->limit($quantity)->cursor()->remember();
 
 		throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
 
@@ -81,8 +85,7 @@ class Concert extends Model
 
 	public function addTickets(int $quantity): self
 	{
-		for ($i = 0; $i < $quantity; $i++)
-			$this->tickets()->create();
+		Ticket::factory()->for($this)->count($quantity)->create();
 
 		return $this;
 	}

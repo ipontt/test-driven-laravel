@@ -28,8 +28,8 @@ class ConcertOrdersController extends Controller
 
 		try {
 			// Find some tickets
-			$tickets = $concert->findTickets(quantity: $validated['ticket_quantity']);
-			$reservation = Reservation::for($tickets);
+			$tickets = $concert->reserveTickets(quantity: $validated['ticket_quantity']);
+			$reservation = Reservation::for(tickets: $tickets);
 
 			// Charge a customer for the tickets
 			$this->paymentGateway->charge(
