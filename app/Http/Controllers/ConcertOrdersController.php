@@ -41,7 +41,10 @@ class ConcertOrdersController extends Controller
 			$order = Order::forTickets(tickets: $tickets, email: $validated['email'], amount: $reservation->totalCost());
 
 			return response()->json(data: OrderResource::make($order), status: Response::HTTP_CREATED);
-		} catch (NotEnoughTicketsException|PaymentFailedException $e) {
+		} catch (PaymentFailedException $e) {
+			$reservation->cancel();
+			return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
+		} catch (NotEnoughTicketsException $e) {
 			return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
 		}
 	}

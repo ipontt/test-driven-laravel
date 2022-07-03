@@ -17,4 +17,9 @@ class Reservation
 	{
 		return $this->tickets->sum('price');
 	}
+
+	public function cancel(): void
+	{
+		$this->tickets->each->release();
+	}
 }

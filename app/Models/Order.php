@@ -34,13 +34,6 @@ class Order extends Model
 	}
 
 	/* METHODS */
-	public function cancel(): void
-	{
-		$this->tickets()->cursor()->each->release();
-
-		$this->delete();
-	}
-
 	public function ticketQuantity(): int
 	{
 		return $this->tickets()->count();

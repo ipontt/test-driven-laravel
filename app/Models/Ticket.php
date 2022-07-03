@@ -42,7 +42,7 @@ class Ticket extends Model
 	/* METHODS */
 	public function release(): void
 	{
-		$this->order()->dissociate()->save();
+		$this->update(['reserved_at' => null]);
 	}
 
 	public function reserve(): void

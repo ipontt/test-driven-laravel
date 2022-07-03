@@ -18,4 +18,13 @@ class TicketFactory extends Factory
 	{
 		return [];
 	}
+
+	public function reserved(): static
+	{
+		return $this->state(function (array $attributes) {
+			return [
+				'reserved_at' => $this->faker->dateTime(),
+			];
+		});
+	}
 }

@@ -93,7 +93,9 @@ test('an order is not created if payment fails', function () {
 
 	$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 	expect($this->paymentGateway->totalCharges())->toBe(0);
-	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeFalse();
+	expect($concert)
+		->hasOrderFor(email: 'john@example.com')->toBeFalse()
+		->ticketsRemaining()->toBe(3);
 });
 
 test('cannot purchase more tickets than are available', function () {
