@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Reservation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 
 class Order extends Model
@@ -15,7 +17,10 @@ class Order extends Model
 
 	public static function forTickets(LazyCollection $tickets, string $email, int $amount): static
 	{
-		$order = static::create(['email' => $email, 'amount' => $amount]);
+		$order = static::create([
+			'email' => $email,
+			'amount' => $amount
+		]);
 
 		$order->tickets()->saveMany($tickets);
 

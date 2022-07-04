@@ -10,11 +10,12 @@ use App\Models\Concert;
 use App\Models\Order;
 use App\Reservation;
 use Illuminate\Http\Request;
-use Illuminate\Http\{Response, JsonResponse};
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class ConcertOrdersController extends Controller
 {
-	public function __construct(private PaymentGateway $paymentGateway) { }
+	public function __construct(private PaymentGateway $paymentGateway) {}
 
 	public function store(Request $request, int $id): JsonResponse
 	{
@@ -27,20 +28,17 @@ class ConcertOrdersController extends Controller
 		]);
 
 		try {
-			// Find some tickets
-			$tickets = $concert->reserveTickets(quantity: $validated['ticket_quantity']);
-			$reservation = Reservation::for(tickets: $tickets);
-
-			// Charge a customer for the tickets
-			$this->paymentGateway->charge(
-				amount: $reservation->totalCost(),
-				token: $validated['payment_token'],
+			$reservation = $concert->reserveTickets(
+				quantity: $validated['ticket_quantity'],
+				email: $validated['email'],
 			);
 
-			// Create an order for those tickets
-			$order = Order::forTickets(tickets: $tickets, email: $validated['email'], amount: $reservation->totalCost());
+			$order = $reservation->complete(
+				paymentGateway: $this->paymentGateway,
+				paymentToken: $validated['payment_token'],
+			);
 
-			return response()->json(data: OrderResource::make($order), status: Response::HTTP_CREATED);
+			return response()->json(status: Response::HTTP_CREATED, data: OrderResource::make($order));
 		} catch (PaymentFailedException $e) {
 			$reservation->cancel();
 			return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);

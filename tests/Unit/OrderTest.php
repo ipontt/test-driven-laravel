@@ -3,6 +3,8 @@
 use App\Http\Resources\OrderResource;
 use App\Models\Concert;
 use App\Models\Order;
+use App\Models\Ticket;
+use App\Reservation;
 
 it('can be created from tickets, email and amount', function () {
 	$concert = Concert::factory()->create()->addTickets(10);

@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Exceptions\NotEnoughTicketsException;
+use App\Reservation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany};
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 
 class Concert extends Model
@@ -64,9 +66,11 @@ class Concert extends Model
 		return $this->createOrder($email, $tickets);
 	}
 
-	public function reserveTickets(int $quantity): LazyCollection
+	public function reserveTickets(int $quantity, string $email): Reservation
 	{
-		return $this->findTickets($quantity)->each->reserve();
+		$tickets = $this->findTickets($quantity)->each->reserve();
+
+		return Reservation::for(tickets: $tickets, email: $email);
 	}
 
 	public function findTickets(int $quantity): LazyCollection
