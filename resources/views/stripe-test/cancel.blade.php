@@ -7,7 +7,6 @@
 </head>
 <body>
 	<h1>CANCEL</h1>
-
 	@dump(request()->all())
 </body>
 </html>

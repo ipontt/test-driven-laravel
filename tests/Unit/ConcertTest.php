@@ -79,8 +79,8 @@ it('can reserve available tickets', function () {
 	$reservation = $concert->reserveTickets(quantity: 2, email: 'john@example.com');
 
 	expect($reservation)
-		->tickets()->toHaveCount(2)
-		->email()->toBe('john@example.com')
+		->tickets->toHaveCount(2)
+		->email->toBe('john@example.com')
 		->and($concert)->ticketsRemaining()->toBe(1);
 });
 

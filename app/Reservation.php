@@ -9,19 +9,9 @@ use Illuminate\Support\LazyCollection;
 class Reservation
 {
 	public function __construct(
-		private LazyCollection $tickets,
-		private string $email,
+		public readonly LazyCollection $tickets,
+		public readonly string $email,
 	) {}
-
-	public function tickets(): LazyCollection
-	{
-		return $this->tickets;
-	}
-
-	public function email(): string
-	{
-		return $this->email;
-	}
 
 	public static function for(...$parameters): static
 	{
@@ -38,8 +28,8 @@ class Reservation
 		$paymentGateway->charge(amount: $this->totalCost(), token: $paymentToken);
 
 		return Order::forTickets(
-			tickets: $this->tickets(),
-			email: $this->email(),
+			tickets: $this->tickets,
+			email: $this->email,
 			amount: $this->totalCost(),
 		);
 	}

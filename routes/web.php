@@ -20,7 +20,6 @@ Route::get('/concerts/{id}', [ConcertController::class, 'show'])->name('concerts
 Route::post('/concerts/{id}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
 
 /*
-Route::view('checkout', 'stripe-test.checkout');
 Route::get('success', function (\Illuminate\Http\Request $request) {
 	dump(
 		$request->headers->all(),
@@ -34,6 +33,7 @@ Route::get('success', function (\Illuminate\Http\Request $request) {
 
 	return view('stripe-test.success');
 });
+Route::view('checkout', 'stripe-test.checkout');
 Route::view('cancel', 'stripe-test.cancel');
 
 Route::get('checkout2', function (\Illuminate\Http\Request $request) {
@@ -132,5 +132,13 @@ Route::post('webhook', function (\Illuminate\Http\Request $request) {
 	Log::debug('out of webhook handler');
 
 	http_response_code(200);
+});
+
+Route::view('test', 'test');
+Route::post('test', function () {
+	return [
+		'html' => '<div>some html</html>',
+		'snapshot' => json_encode(['class' => 'Some\\Namespace\\Class', 'data' => ['count' => 1]]),
+	];
 });
 */

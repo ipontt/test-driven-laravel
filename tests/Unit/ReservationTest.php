@@ -24,12 +24,12 @@ it('can retrieve the reservation tickets', function () {
 		(object) ['price' => 1200],
 	]);
 
-	expect(Reservation::for(tickets: $mockTickets, email: 'john@example.com'))->tickets()->toEqual($mockTickets);
+	expect(Reservation::for(tickets: $mockTickets, email: 'john@example.com'))->tickets->toEqual($mockTickets);
 });
 
 it('can retrieve the reservation email')
 	->expect(fn () => Reservation::for(tickets: LazyCollection::empty(), email: 'john@example.com'))
-	->email()->toBe('john@example.com');
+	->email->toBe('john@example.com');
 
 it('releases the tickets when a reservation is cancelled', function () {
 	$mockTickets = LazyCollection::make([

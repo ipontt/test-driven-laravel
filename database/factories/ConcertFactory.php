@@ -19,7 +19,7 @@ class ConcertFactory extends Factory
 		return [
 			'title' => $this->faker->sentence,
 			'subtitle' => $this->faker->sentence,
-			'date' => $this->faker->dateTimeBetween('+2 weeks', '+1 year'),
+			'date' => $this->faker->dateTimeBetween('+2 weeks', '+1 year')->format('Y-m-d H:00:00'),
 			'ticket_price' => $this->faker->numberBetween(3000, 10000),
 			'venue' => $this->faker->sentence,
 			'venue_address' => $this->faker->streetAddress,
