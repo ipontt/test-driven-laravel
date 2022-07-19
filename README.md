@@ -1,64 +1,75 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## About this repo
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repo follows Adam Wathan's test-driven Laravel tutorial using Laravel 9.x and [PEST](https://pestphp.com/). Installation instructions don't differ from a normal Laravel installation.
 
-## About Laravel
+### Installation instructions
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+ 1. `composer install`
+ 2. `npm install`
+ 3. `npm run build`
+ 4. `cp .env.example .env`
+ 5. Fill out `.env` file.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+ - PHP 8.1 or above.
+ - A database. PostgreSQL was used in development.
+ - Stripe keys. You can obtain testing keys for free at [https://stripe.com/](https://stripe.com/).
 
-## Learning Laravel
+### Running tests
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Dev dependencies must be installed to run tests. Tests can be run by calling the pest binary.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```sh
+./vendor/bin/pest
+```
 
-## Laravel Sponsors
+## Thoughts
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+These are the thoughts I have on every chapter of the course. I started writing these with Chapter 12, so the earliest chapters are not as accurate.
 
-### Premium Partners
+### Chapter 1
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+*No comment*
 
-## Contributing
+### Chapter 2
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+This chapter was confusing at first. It required some extra reading into Stripe's documentation and some experimenting. The tutorial uses Stripe's checkout.js, which is considered legacy at the time of writing.
 
-## Code of Conduct
+### Chapter 3
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+This chapter contains some refactoring and I got the impression there was an attempt to hide logic for it's own sake. It makes me wonder if in the long run, it's better to hide away every bit of query builder logic behind model methods or query scopes to make the code more readable for someone who isn't familiar with the framework instead of just writing the queries plainly which may not be a pretty one liner, but is easy to understand if you have experience with the framework.
 
-## Security Vulnerabilities
+### Chapter 4
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+*No comment*
 
-## License
+### Chapter 5
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+I like the domain object approach over Services or Action classes.
+
+### Chapter 6
+
+Facing a similar problem on a past project, my first instinct was to reach for database locks. The callback base solution proposed by this chapter seems much simpler
+
+### Chapter 7
+
+Mockery spies offer some neat syntax.
+
+### Chapter 8
+
+*No comment*
+
+### Chapter 9
+
+Same as in chapter 2. I tried implementing the component in alpinejs without using the inline notation. I'm not completely satisfied with the result but for the purposes of this project, it works. I want to look into switching Stripe's checkout.js for Stripe Elements later.
+
+Ideally, I'd want to use Stripe Checkout and forgo the need for a javascript component completely.
+
+### Chapter 10
+
+Contract tests posed an interesting challenge with Pest. Traits didn't really work with Pest so instead, implementing the tests on a separate file and requiring it directly in each implementation worked well.
+
+### Chapter 11
+
+*No comment*
