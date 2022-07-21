@@ -13,6 +13,7 @@ class OrderResource extends JsonResource
 	public function toArray($request): Arrayable|JsonSerializable|array
 	{
 		return [
+			'confirmation_number' => $this->confirmation_number,
 			'email' => $this->email,
 			'ticket_quantity' => $this->ticketQuantity(),
 			'amount' => $this->amount,

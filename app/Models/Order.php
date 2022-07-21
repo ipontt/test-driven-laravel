@@ -21,6 +21,7 @@ class Order extends Model
 	public static function forTickets(LazyCollection $tickets, string $email, int $amount): static
 	{
 		$order = static::create([
+			'confirmation_number' => Str::uuid(),
 			'email' => $email,
 			'amount' => $amount
 		]);
@@ -41,10 +42,11 @@ class Order extends Model
 	public function makedCardNumber(): Attribute
 	{
 		return Attribute::make(
-			get: fn () => chunk_split(
+			get: fn () => wordwrap(
 				string: Str::padLeft(value: $this->card_last_four, length: 16, pad: '*'),
-				length: 4,
-				separator: ' ',
+				width: 4,
+				break: ' ',
+				cut_long_words: true,
 			),
 		);
 	}

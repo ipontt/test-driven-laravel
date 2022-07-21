@@ -4,9 +4,11 @@ use App\Models\Concert;
 use App\Models\Order;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use function Pest\Laravel\get;
 
 test('user can view their order confirmation', function () {
+	$confirmation_number = Str::uuid();
 	$concert = Concert::factory()->create([
 		'title' => 'The Red Cord',
 		'subtitle' => 'with Animosity and Lethargy',
@@ -24,18 +26,18 @@ test('user can view their order confirmation', function () {
 		->hasAttached($concert, ['code' => 'TICKETCODE123'])
 		->hasAttached($concert, ['code' => 'TICKETCODE456'])
 		->create([
-			'confirmation_number' => 'ORDERCONFIRMATION1234',
+			'confirmation_number' => $confirmation_number,
 			'card_last_four' => 1881,
 			'amount' => 8500,
 			'email' => 'john@example.com',
 		]);
 
-	$response = get('orders/ORDERCONFIRMATION1234');
+	$response = get("orders/{$confirmation_number}");
 
 	$response
 		->assertStatus(Response::HTTP_OK)
 		->assertViewHas(key: 'order', value: $order)
-		->assertSee('ORDERCONFIRMATION1234')
+		->assertSee($confirmation_number)
 		->assertSee('$85.00')
 		->assertSee('**** **** **** 1881')
 		->assertSee('TICKETCODE123')

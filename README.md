@@ -78,3 +78,7 @@ Contract tests posed an interesting challenge with Pest. Traits didn't really wo
 
 Maybe if the user doesn't immediately print the tickets, they could be sent by email as well.
 Confirmation numbers are less guessable than autoincrementing ids, but they are still guessable to a lesser extent. Since no two confirmation numbers should be the same, maybe using an UUID would do the trick. Though again, I think the best approach is to send the tickets directly via email. Adding a finder seems like extra complexity if it's just to do the same thing route model binding can do at the moment by specifying keys. Asserting against a semantic html5 element is a great idea.
+
+### Chapter 13
+
+`Str::uuid()` generates the kind of random confirmation_numbers sought using the underlying `ramsey/uuid` package, so there's no need to make a custom implementation. It's also easy to test and plays nicely with PostgreSQL's UUID data type.

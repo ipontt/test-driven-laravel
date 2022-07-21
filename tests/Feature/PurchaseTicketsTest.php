@@ -4,6 +4,7 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\FakePaymentGateway;
 use App\Models\Concert;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use function Pest\Laravel\postJson;
 
@@ -17,6 +18,8 @@ beforeEach(function () {
 });
 
 test('customer can purchase tickets for published concerts', function () {
+	$confirmation_number = (string) Str::freezeUuids();
+
 	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
@@ -29,6 +32,7 @@ test('customer can purchase tickets for published concerts', function () {
 		->assertStatus(Response::HTTP_CREATED)
 		->assertJson(fn (AssertableJson $json) =>
 			$json
+				->where('confirmation_number', $confirmation_number)
 				->where('email', 'john@example.com')
 				->where('ticket_quantity', 3)
 				->where('amount', 9750)

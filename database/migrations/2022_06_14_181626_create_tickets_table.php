@@ -13,7 +13,7 @@ return new class extends Migration
 			$table->foreignId('concert_id')->constrained('concerts')->onUpdate('cascade')->onDelete('restrict');
 			$table->foreignId('order_id')->nullable()->constrained('orders')->onUpdate('cascade')->onDelete('restrict');
 			$table->timestamp('reserved_at')->nullable();
-			$table->string('code');
+			$table->string('code')->nullable();
 			$table->timestamps();
 		});
 	}

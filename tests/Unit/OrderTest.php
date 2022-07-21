@@ -29,26 +29,33 @@ it('can get the masked card number')
 	->maked_card_number->toBe('**** **** **** 4242');
 
 it('can be retrieved by its confirmation number', function () {
-	$order = Order::factory()->create(['confirmation_number' => 'CONFIRMATION123']);
+	$confirmation_number = Str::uuid();
+	$order = Order::factory()->create(['confirmation_number' => $confirmation_number]);
 
-	expect(Order::findByConfirmationNumber('CONFIRMATION123'))
+	expect(Order::findByConfirmationNumber($confirmation_number))
 		->toBeInstanceOf(Order::class)
 		->id->toEqual($order->id);
 });
 
 it('throws an exception when retrieving a non-existent order by its confirmation number')
-	->tap(fn () => Order::findByConfirmationNumber('NONEXISTENT'))
+	->tap(fn () => Order::findByConfirmationNumber('00000000-0000-0000-0000-000000000000'))
 	->throws(ModelNotFoundException::class);
 
 it('can be json serialized', function () {
-	$concert = Concert::factory()->create(['ticket_price' => 1000])->addTickets(10);
-	$order = $concert->orderTickets(email: 'jane@example.com', ticket_quantity: 5);
+	$concert = Concert::factory()->create();
+	$confirmation_number = Str::uuid();
+	$order = Order::factory()->hasTickets(3, ['concert_id' => $concert->id])->create([
+		'confirmation_number' => $confirmation_number,
+		'email' => 'jane@example.com',
+		'amount' => 5000,
+	]);
 
 	$result = OrderResource::make($order)->jsonSerialize();
 
 	expect($result)->toMatchArray([
+		'confirmation_number' => $confirmation_number,
 		'email' => 'jane@example.com',
-		'ticket_quantity' => 5,
+		'ticket_quantity' => 3,
 		'amount' => 5000,
 	]);
 });
