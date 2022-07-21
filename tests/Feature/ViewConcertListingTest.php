@@ -19,7 +19,9 @@ test('user can view a published concert listing', function () {
 		'additional_information' => 'For tickets, call (555) 555-5555.',
 	]);
 
-	get('/concerts/' . $concert->id)
+	$response = get("/concerts/{$concert->id}");
+
+	$response
 		->assertStatus(Response::HTTP_OK)
 		->assertSee('The Red Cord')
 		->assertSee('with Animosity and Lethargy')
@@ -35,6 +37,7 @@ test('user can view a published concert listing', function () {
 test('user cannot view an unpublished concert listing', function () {
 	$concert = Concert::factory()->unpublished()->create();
 
-	get('/concerts/' . $concert->id)
-		->assertStatus(Response::HTTP_NOT_FOUND);
+	$response = get("/concerts/{$concert->id}");
+
+	$response->assertStatus(Response::HTTP_NOT_FOUND);
 });

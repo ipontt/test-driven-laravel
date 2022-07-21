@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ConcertController;
 use App\Http\Controllers\ConcertOrdersController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\{Route, Log};
 
 /*
@@ -15,9 +16,11 @@ use Illuminate\Support\Facades\{Route, Log};
 |
 */
 
-Route::get('/concerts/{id}', [ConcertController::class, 'show'])->name('concerts.show');
+Route::get('/concerts/{publishedConcert}', [ConcertController::class, 'show'])->name('concerts.show');
 
-Route::post('/concerts/{id}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
+Route::post('/concerts/{publishedConcert}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
+
+Route::get('/orders/{order:confirmation_number}', [OrderController::class, 'show'])->name('orders.show');
 
 /*
 Route::get('success', function (\Illuminate\Http\Request $request) {

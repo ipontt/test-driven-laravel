@@ -4,13 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class Ticket extends Model
+class Ticket extends Pivot
 {
 	use HasFactory;
+
+	protected $table = 'tickets';
+
+	public $incrementing = 'true';
 
 	protected $guarded = [];
 

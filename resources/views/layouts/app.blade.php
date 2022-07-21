@@ -9,13 +9,11 @@
 	@stack('head-scripts')
 	@stack('styles')
 </head>
-<body class="overflow-hidden font-sans antialiased bg-gray-200">
+<body class="font-sans antialiased bg-gray-200">
 	<div class="bg-gray-100">
 		<div class="py-12 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-			<div class="mx-auto max-w-2xl">
-				<div class="overflow-hidden bg-white rounded-lg shadow">
-					@yield('content')
-				</div>
+			<div class="mx-auto max-w-2xl lg:max-w-4xl">
+				@yield('content')
 			</div>
 		</div>
 	</div>

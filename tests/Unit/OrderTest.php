@@ -5,6 +5,7 @@ use App\Models\Concert;
 use App\Models\Order;
 use App\Models\Ticket;
 use App\Reservation;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 it('can be created from tickets, email and amount', function () {
 	$concert = Concert::factory()->create()->addTickets(10);
@@ -18,6 +19,26 @@ it('can be created from tickets, email and amount', function () {
 		->email->toBe('john@example.com')
 		->ticketQuantity()->toBe(3);
 });
+
+it('can get the amount in dollars')
+	->expect(fn () => Order::factory()->make(['amount' => 6750]))
+	->amount_in_dollars->toBe('67.50');
+
+it('can get the masked card number')
+	->expect(fn () => Order::factory()->make(['card_last_four' => '4242']))
+	->maked_card_number->toBe('**** **** **** 4242');
+
+it('can be retrieved by its confirmation number', function () {
+	$order = Order::factory()->create(['confirmation_number' => 'CONFIRMATION123']);
+
+	expect(Order::findByConfirmationNumber('CONFIRMATION123'))
+		->toBeInstanceOf(Order::class)
+		->id->toEqual($order->id);
+});
+
+it('throws an exception when retrieving a non-existent order by its confirmation number')
+	->tap(fn () => Order::findByConfirmationNumber('NONEXISTENT'))
+	->throws(ModelNotFoundException::class);
 
 it('can be json serialized', function () {
 	$concert = Concert::factory()->create(['ticket_price' => 1000])->addTickets(10);

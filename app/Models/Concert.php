@@ -50,7 +50,7 @@ class Concert extends Model
 	/* RELATIONSHIPS */
 	public function orders(): BelongsToMany
 	{
-		return $this->belongsToMany(Order::class, 'tickets');
+		return $this->belongsToMany(Order::class, 'tickets')->using(Ticket::class)->as('ticket')->withPivot('reserved_at');
 	}
 
 	public function tickets(): HasMany

@@ -17,10 +17,8 @@ class ConcertOrdersController extends Controller
 {
 	public function __construct(private PaymentGateway $paymentGateway) {}
 
-	public function store(Request $request, int $id): JsonResponse
+	public function store(Request $request, Concert $concert): JsonResponse
 	{
-		$concert = Concert::published()->findOrFail($id);
-
 		$validated = $request->validate([
 			'email' => ['required', 'email'],
 			'ticket_quantity' => ['required', 'integer', 'min:1'],

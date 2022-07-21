@@ -8,10 +8,8 @@ use Illuminate\Http\Response;
 
 class ConcertController extends Controller
 {
-    public function show(int $id): Response
+    public function show(Concert $concert): Response
     {
-        $concert = Concert::published()->findOrFail($id);
-
         return response()->view('concerts.show', [
             'concert' => $concert,
         ]);

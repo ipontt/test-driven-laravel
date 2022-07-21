@@ -3,11 +3,11 @@
 		<label for="price" class="block text-sm font-bold text-gray-700">Price</label>
 		<div class="relative mt-1 rounded-md shadow-sm">
 			<div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-				<span class="text-gray-500 sm:text-sm">&nbsp;$&nbsp;</span>
+				<span class="text-gray-500 sm:text-sm">$</span>
 			</div>
 			<input type="text" value="{{ $concert->ticket_price_in_dollars }}" id="price" class="block pr-12 pl-7 w-full rounded-md border-none sm:text-sm focus:ring-sky-500 focus:border-sky-500" aria-describedby="price-currency" disabled>
 			<div class="flex absolute inset-y-0 right-0 items-center pr-3 pointer-events-none">
-				<span class="text-gray-500 sm:text-sm" id="price-currency">&nbsp;USD&nbsp;</span>
+				<span class="text-gray-500 sm:text-sm" id="price-currency">USD</span>
 			</div>
 		</div>
 	</div>
@@ -16,12 +16,17 @@
 			<abbr title="Quantity" class="no-underline">Qty</abbr>
 		</label>
 		<div class="relative mt-1 rounded-md shadow-sm">
-			@error('quantity')
-				@php($colors = 'text-red-900 border-red-300 focus:border-red-500 focus:ring-red-500')
-			@else
-				@php($colors = 'text-gray-900 border-gray-300 focus:border-gray-500 focus:ring-gray-500')
-			@enderror
-			<input type="number" x-model="quantity" id="quantity" class="block pr-10 w-full {{ $colors }} rounded-md sm:text-sm focus:outline-none" min="1" @error('quantity') aria-invalid="true" aria-describedby="quantity-error" @enderror>
+			<input
+				id="quantity"
+				type="number"
+				min="1"
+				x-model="quantity"
+				@class([
+					'block pr-10 w-full rounded-md sm:text-sm focus:outline-none',
+					'text-red-900 border-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has('quantity'),
+					'text-gray-900 border-gray-300 focus:border-gray-500 focus:ring-gray-500' => ! $errors->has('quantity'),
+				])
+				@error('quantity') aria-invalid="true" aria-describedby="quantity-error" @enderror>
 			@error('quantity')
 				<div class="flex absolute inset-y-0 right-0 items-center pr-3 pointer-events-none">
 					<x-heroicon-s-exclamation-circle class="w-5 h-5 text-red-500" />
@@ -82,7 +87,7 @@ document.addEventListener('alpine:init', () => {
 		},
 
 		async purchaseTickets(token) {
-			const response = await fetch("{{ route('concerts.orders.store', ['id' => $concert->id]) }}", {
+			const response = await fetch("{{ route('concerts.orders.store', [$concert->id]) }}", {
 				method: 'POST',
 				headers: {
 					"X-CSRF-TOKEN": "{{ csrf_token() }}",

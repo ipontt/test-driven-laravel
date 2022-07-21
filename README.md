@@ -73,3 +73,8 @@ Contract tests posed an interesting challenge with Pest. Traits didn't really wo
 ### Chapter 11
 
 *No comment*
+
+### Chapter 12
+
+Maybe if the user doesn't immediately print the tickets, they could be sent by email as well.
+Confirmation numbers are less guessable than autoincrementing ids, but they are still guessable to a lesser extent. Since no two confirmation numbers should be the same, maybe using an UUID would do the trick. Though again, I think the best approach is to send the tickets directly via email. Adding a finder seems like extra complexity if it's just to do the same thing route model binding can do at the moment by specifying keys. Asserting against a semantic html5 element is a great idea.
