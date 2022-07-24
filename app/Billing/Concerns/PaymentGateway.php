@@ -2,13 +2,16 @@
 
 namespace App\Billing\Concerns;
 
+use App\Billing\Charge;
 use Illuminate\Support\Collection;
 
 interface PaymentGateway
 {
-	public function charge(int $amount, string $token): void;
+	const TEST_CARD_NUMBER = self::TEST_CARD_NUMBER;
 
-	public function getValidTestToken(): string;
+	public function charge(int $amount, string $token): Charge;
+
+	public function getValidTestToken(string $cardNumber = self::TEST_CARD_NUMBER): string;
 
 	public function newChargesDuring(callable $callback): Collection;
 }

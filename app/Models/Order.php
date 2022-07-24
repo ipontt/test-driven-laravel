@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Billing\Charge;
 use App\Reservation;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,15 +19,16 @@ class Order extends Model
 
 	protected $guarded = [];
 
-	public static function forTickets(LazyCollection $tickets, string $email, int $amount): static
+	public static function forTickets(LazyCollection $tickets, string $email, Charge $charge): static
 	{
 		$order = static::create([
 			'confirmation_number' => Str::uuid(),
 			'email' => $email,
-			'amount' => $amount
+			'amount' => $charge->amount,
+			'card_last_four' => $charge->cardLastFour,
 		]);
 
-		$order->tickets()->saveMany($tickets);
+		$tickets->each->claimFor($order);
 
 		return $order;
 	}

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Concert;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +17,9 @@ class TicketFactory extends Factory
 	 */
 	public function definition(): array
 	{
-		return [];
+		return [
+			'concert_id' => Concert::factory(),
+		];
 	}
 
 	public function reserved(): static

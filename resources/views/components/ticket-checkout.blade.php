@@ -56,10 +56,20 @@ document.addEventListener('alpine:init', () => {
 
 		stripeHandler: null,
 
-		get description() { return this.quantity > 1 ? `${this.quantity} tickets to ${this.title}.` : `One ticket to ${this.title}.` },
-		get totalPrice() { return this.quantity * this.price },
-		get priceInDollars() { return (this.price / 100).toFixed(2) },
-		get totalPriceInDollars() { return (this.totalPrice / 100).toFixed(2) },
+		get description() {
+			return this.quantity > 1
+				? `${this.quantity} tickets to ${this.title}.`
+				: `One ticket to ${this.title}.`
+		},
+		get totalPrice() {
+			return this.quantity * this.price
+		},
+		get priceInDollars() {
+			return (this.price / 100).toFixed(2)
+		},
+		get totalPriceInDollars() {
+			return (this.totalPrice / 100).toFixed(2)
+		},
 
 		init() {
 			this.stripeHandler = this.initStripe()
@@ -101,9 +111,12 @@ document.addEventListener('alpine:init', () => {
 			})
 			
 			if (response.status === 201) {
-				console.log('Charge succeeded.')
+				const { confirmation_number } = await response.json();
+				console.log('Payment Succeeded. Redirecting...')
+
+				window.location = `/orders/${confirmation_number}`
 			} else {
-				console.warn(`Charge failed with status ${response.status}.`)
+				throw new Error('Payment Failed')
 			}
 		},
 	}))

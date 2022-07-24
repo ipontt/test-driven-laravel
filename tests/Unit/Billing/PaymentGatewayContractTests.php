@@ -8,7 +8,7 @@ test('charges with a valid payment token are successful', function () {
 		$paymentGateway->charge(amount: 2500, token: $this->paymentGateway->getValidTestToken());
 	});
 
-	expect($newCharges)->sum()->toEqual(2500);
+	expect($newCharges)->sum->amount->toEqual(2500);
 });
 
 test('only one charge is created after a successful payment', function () {
@@ -17,6 +17,17 @@ test('only one charge is created after a successful payment', function () {
 	});
 
 	expect($newCharges)->toHaveCount(1);
+});
+
+it('can get details about a successful charge', function () {
+	$charge = $this->paymentGateway->charge(
+		amount: 2500,
+		token: $this->paymentGateway->getValidTestToken(cardNumber: $this->paymentGateway::TEST_CARD_NUMBER)
+	);
+
+	expect($charge)
+		->amount->toEqual(2500)
+		->cardLastFour->toEqual(substr(string: $this->paymentGateway::TEST_CARD_NUMBER, offset: -4));
 });
 
 test('charges with an invalid payment token fail')
@@ -47,7 +58,7 @@ it('can fetch charges created during a callback in descending order', function (
 		$this->paymentGateway->charge(amount: 5500, token: $this->paymentGateway->getValidTestToken());
 	});
 
-	expect($newCharges)
+	expect($newCharges->map->amount)
 		->toHaveCount(3)
 		->sum()->toEqual(15500)
 		->all()->toBe([5500, 6000, 4000]);

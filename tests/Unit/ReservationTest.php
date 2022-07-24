@@ -40,7 +40,7 @@ it('releases the tickets when a reservation is cancelled', function () {
 
 	Reservation::for(tickets: $mockTickets, email: 'john@example.com')->cancel();
 
-	$mockTickets->each(fn ($spy) => $spy->shouldHaveReceived('release'));
+	$mockTickets->each->shouldHaveReceived('release');
 });
 
 it('creates an order when a reservation is completed', function () {

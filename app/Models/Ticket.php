@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Facades\App\TicketCodeGenerator;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -53,5 +54,11 @@ class Ticket extends Pivot
 	public function reserve(): void
 	{
 		$this->update(['reserved_at' => now()]);
+	}
+
+	public function claimFor(Order $order): void
+	{
+		$this->code = TicketCodeGenerator::generateFor(ticket: $this);
+		$this->order()->associate($order)->save();
 	}
 }

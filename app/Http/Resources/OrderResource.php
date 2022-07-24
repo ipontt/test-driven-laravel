@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arrayable;
@@ -13,10 +14,10 @@ class OrderResource extends JsonResource
 	public function toArray($request): Arrayable|JsonSerializable|array
 	{
 		return [
+			'amount' => $this->amount,
 			'confirmation_number' => $this->confirmation_number,
 			'email' => $this->email,
-			'ticket_quantity' => $this->ticketQuantity(),
-			'amount' => $this->amount,
+			'tickets' => $this->tickets->map(fn (Ticket $ticket) => ['code' => $ticket->code])->all(),
 		];
 	}
 }

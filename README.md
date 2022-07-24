@@ -82,3 +82,21 @@ Confirmation numbers are less guessable than autoincrementing ids, but they are 
 ### Chapter 13
 
 `Str::uuid()` generates the kind of random confirmation_numbers sought using the underlying `ramsey/uuid` package, so there's no need to make a custom implementation. It's also easy to test and plays nicely with PostgreSQL's UUID data type.
+
+### Chapter 14
+
+Considering readonly properties and constructor property promotion are now available, instead of passing a map to the constructor and using getters, we could pass each property as named arguments and directly access the public properties
+
+### Chapter 15
+
+Mockery spies are great for ensuring individual tests don't have too much responsabilities. About using a ticket's code to check if it's claimed or not; I think using order_id would do the same thing. Considering the ticket's code is computed from its it, making it an Attribute would save some trouble. A possible implementation could be
+```php
+use Hashid\Hashid;
+
+public function getCodeAttribute()
+{
+    return $this->order_id
+        ? (new Hashid(...))->encode($this->id)
+        : null;
+}
+```

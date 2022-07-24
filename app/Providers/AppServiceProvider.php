@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Stripe\StripePaymentGateway;
+use App\HashidsTicketCodeGenerator;
+use App\TicketCodeGenerator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             abstract: PaymentGateway::class,
             concrete: StripePaymentGateway::class,
+        );
+
+        $this->app->bind(
+            abstract: TicketCodeGenerator::class,
+            concrete: HashidsTicketCodeGenerator::class,
         );
     }
 
