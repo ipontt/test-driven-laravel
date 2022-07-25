@@ -75,11 +75,6 @@ class Concert extends Model
 		return $tickets;
 	}
 
-	public function createOrder(string $email, LazyCollection $tickets): Order
-	{
-		return Order::forTickets(tickets: $tickets, email: $email, amount: $tickets->sum('price'));
-	}
-
 	public function addTickets(int $quantity): self
 	{
 		Ticket::factory()->for($this)->count($quantity)->create();

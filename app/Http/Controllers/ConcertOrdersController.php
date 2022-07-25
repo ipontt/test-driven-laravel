@@ -6,12 +6,14 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Exceptions\PaymentFailedException;
 use App\Exceptions\NotEnoughTicketsException;
 use App\Http\Resources\OrderResource;
+use App\Mail\OrderConfirmationEmail;
 use App\Models\Concert;
 use App\Models\Order;
 use App\Reservation;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
 
 class ConcertOrdersController extends Controller
 {
@@ -35,6 +37,8 @@ class ConcertOrdersController extends Controller
 				paymentGateway: $this->paymentGateway,
 				paymentToken: $validated['payment_token'],
 			);
+
+			Mail::to($order->email)->send(new OrderConfirmationEmail(order: $order));
 
 			return response()->json(status: Response::HTTP_CREATED, data: OrderResource::make($order));
 		} catch (PaymentFailedException $e) {

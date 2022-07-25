@@ -100,3 +100,8 @@ public function getCodeAttribute()
         : null;
 }
 ```
+Also, the app key could be reused for the hashid salt.
+
+### Chapter 16
+
+Currently (laravel 9.x), there is no need to create additional helpers to assert again a Mailable's contents. `$mailable->assertSeeInHtml()` and `$mailable->assertSeeInText()` provide that functionality.

@@ -5,7 +5,7 @@
 <div class="overflow-hidden bg-white rounded-lg shadow divide-y divide-gray-200">
 	<div class="py-5 px-4 sm:p-6 flex justify-between">
 		<h1 class="text-2xl font-light leading-6 text-gray-700">Order Summary</h1>
-		<span id="confirmation-number" class="text-sky-500">{{ $order->confirmation_number }}</a>
+		<a id="confirmation-number" href="{{ route('orders.show', [$order]) }}" class="text-sky-500">{{ $order->confirmation_number }}</a>
 	</div>
 	<div class="py-5 px-4 sm:p-6">
 		<div>

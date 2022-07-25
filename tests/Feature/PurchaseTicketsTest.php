@@ -2,14 +2,17 @@
 
 use App\Billing\Concerns\PaymentGateway;
 use App\Billing\FakePaymentGateway;
+use App\Mail\OrderConfirmationEmail;
 use App\Models\Concert;
 use Facades\App\TicketCodeGenerator;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use function Pest\Laravel\postJson;
 
 
 beforeEach(function () {
+	Mail::fake();
 	$this->paymentGateway = new FakePaymentGateway;
 	app()->instance(
 		abstract: PaymentGateway::class,
@@ -42,9 +45,15 @@ test('customer can purchase tickets for published concerts', function () {
 		]);
 	expect($this->paymentGateway->totalCharges())->toBe(9750);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
-	expecT($concert->ordersFor(email: 'john@example.com')->first())
+	$order = $concert->ordersFor(email: 'john@example.com')->first();
+	expect($order)
 		->not->toBeNull()
 		->ticketQuantity()->toBe(3);
+
+	Mail::assertSent(mailable: OrderConfirmationEmail::class, callback: function ($mail) use ($order) {
+		return $mail->hasTo('john@example.com')
+			&& $mail->order->id === $order->id;
+	});
 });
 
 test('customer cannot purchase tickets for unpublished concerts', function () {
