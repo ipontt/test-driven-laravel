@@ -105,3 +105,40 @@ Also, the app key could be reused for the hashid salt.
 ### Chapter 16
 
 Currently (laravel 9.x), there is no need to create additional helpers to assert again a Mailable's contents. `$mailable->assertSeeInHtml()` and `$mailable->assertSeeInText()` provide that functionality.
+
+### Chapter 17
+
+Dusk can be flimsy at times. It is a powerful tool though.
+
+### Chapter 18
+
+Currently, Form Requests allows for some neat encapsulation of the validation logic. With some pre-validation modifications, we can just validate the fields we actually care about.
+```php
+
+class StoreConcertRequest extends FormRequest
+{
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'date' => vsprintf(format: '%s %s', values: [$this->date, $this->time]),
+            'ticket_price' => (int) ((float) $this->ticket_price * 100),
+        ]);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title' => ['required'],
+            ...
+        ];
+    }
+}
+```
+and then pass the validated data directly to the model
+```php
+$concert = Auth::user()
+    ->concerts()
+    ->create(attributes: $request->safe()->except('ticket_quantity'))
+    ->addTickets(quantity: $request->validated('ticket_quantity'))
+    ->publish();
+```

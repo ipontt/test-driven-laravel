@@ -3,7 +3,7 @@
 use App\Models\Concert;
 use App\Models\Order;
 use Illuminate\Http\Response;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use function Pest\Laravel\get;
 
@@ -12,7 +12,7 @@ test('user can view their order confirmation', function () {
 	$concert = Concert::factory()->create([
 		'title' => 'The Red Cord',
 		'subtitle' => 'with Animosity and Lethargy',
-		'date' => Carbon::parse('December 13, 2016 8:00pm'),
+		'date' => Date::parse('December 13, 2016 8:00pm'),
 		'ticket_price' => 3250,
 		'venue' => 'The Mosh Pit',
 		'venue_address' => '123 Example Lane',

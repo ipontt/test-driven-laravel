@@ -7,18 +7,16 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Exceptions\PaymentFailedException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Stripe\Exception\InvalidRequestException;
-use Stripe\StripeClient;
 
 class StripePaymentGateway implements PaymentGateway
 {
-	private StripeClient $stripe;
+	private \Stripe\StripeClient $stripe;
 
 	public const TEST_CARD_NUMBER = '4242424242424242';
 
 	public function __construct(string $apiKey)
 	{
-		$this->stripe = new StripeClient($apiKey);
+		$this->stripe = new \Stripe\StripeClient($apiKey);
 	}
 
 	public function charge(int $amount, string $token): Charge
@@ -31,7 +29,7 @@ class StripePaymentGateway implements PaymentGateway
 					'currency' => 'usd',
 				],
 			);
-		} catch (InvalidRequestException $e) {
+		} catch (\Stripe\Exception\InvalidRequestException $e) {
 			throw new PaymentFailedException('Invalid Payment Token');
 		}
 

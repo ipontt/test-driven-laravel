@@ -91,7 +91,7 @@ document.addEventListener('alpine:init', () => {
 				allowRememberMe: false,
 				panelLabel: "Pay @{{amount}}",
 				amount: this.totalPrice,
-				image: "{{ asset('img/checkout-icon.png') }}",
+				image: "{{ asset('favicon.ico') }}",
 				token: token =>  this.purchaseTickets(token)
 			})
 		},

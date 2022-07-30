@@ -1,27 +1,27 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ConcertController;
+use App\Http\Controllers\Backstage\ConcertController as BackstageConcertController;
 use App\Http\Controllers\ConcertOrdersController;
 use App\Http\Controllers\OrderController;
-use Illuminate\Support\Facades\{Route, Log};
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use Illuminate\Support\Facades\Route;
 
 Route::get('/concerts/{publishedConcert}', [ConcertController::class, 'show'])->name('concerts.show');
-
 Route::post('/concerts/{publishedConcert}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
 
 Route::get('/orders/{order:confirmation_number}', [OrderController::class, 'show'])->name('orders.show');
 
+Route::name('auth.')->group(function () {
+	Route::view('/login', 'auth.login')->middleware('guest')->name('show-login');
+	Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login');
+	Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+});
+
+Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(function () {
+	Route::get('/concerts/create', [BackstageConcertController::class, 'create'])->name('concerts.create');
+	Route::post('/concerts', [BackstageConcertController::class, 'store'])->name('concerts.store');
+});
 /*
 Route::get('success', function (\Illuminate\Http\Request $request) {
 	dump(

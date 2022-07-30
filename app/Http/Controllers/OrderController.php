@@ -10,7 +10,7 @@ class OrderController extends Controller
 {
     public function show(Order $order): Response
     {
-        return response()->view('orders.show', [
+        return \response()->view('orders.show', [
             'order' => $order,
         ]);
     }

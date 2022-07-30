@@ -10,8 +10,9 @@ return new class extends Migration
 	{
 		Schema::create('concerts', function (Blueprint $table) {
 			$table->id();
+			$table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('restrict');
 			$table->string('title');
-			$table->string('subtitle');
+			$table->string('subtitle')->nullable();
 			$table->dateTime('date');
 			$table->integer('ticket_price');
 			$table->string('venue');
@@ -19,7 +20,7 @@ return new class extends Migration
 			$table->string('city');
 			$table->string('state');
 			$table->string('zip');
-			$table->text('additional_information');
+			$table->text('additional_information')->nullable();
 			$table->dateTime('published_at')->nullable();
 			$table->timestamps();
 		});
@@ -27,6 +28,8 @@ return new class extends Migration
 
 	public function down(): void
 	{
+		Schema::table('concerts', fn (Blueprint $table) => $table->dropForeign(['user_id']));
+
 		Schema::dropIfExists('concerts');
 	}
 };

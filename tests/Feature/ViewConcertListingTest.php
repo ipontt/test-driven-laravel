@@ -1,15 +1,15 @@
 <?php
 
 use App\Models\Concert;
-use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Date;
 use function Pest\Laravel\get;
 
 test('user can view a published concert listing', function () {
 	$concert = Concert::factory()->published()->create([
 		'title' => 'The Red Cord',
 		'subtitle' => 'with Animosity and Lethargy',
-		'date' => Carbon::parse('December 13, 2016 8:00pm'),
+		'date' => Date::parse('December 13, 2016 8:00pm'),
 		'ticket_price' => 3250,
 		'venue' => 'The Mosh Pit',
 		'venue_address' => '123 Example Lane',

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Date;
 
 class Ticket extends Pivot
 {
@@ -53,7 +54,7 @@ class Ticket extends Pivot
 
 	public function reserve(): void
 	{
-		$this->update(['reserved_at' => now()]);
+		$this->update(['reserved_at' => Date::now()]);
 	}
 
 	public function claimFor(Order $order): void

@@ -1,7 +1,13 @@
-<p>Thank you for your order!</p>
+<html lang="en">
+<head></head>
+<body>
+	<p>Thank you for your order!</p>
 
-<p>You can view your tickets at any time by visiting the following URL:</p>
+	<p>You can view your tickets at any time by visiting the following URL:</p>
 
-<p>
-	<a href="{{ route('orders.show', [$order]) }}">{{ route('orders.show', [$order]) }}</a>
-</p>
+	<p>
+		<a href="{{ \route('orders.show', [$order]) }}">{{ \route('orders.show', [$order]) }}</a>
+	</p>	
+</body>
+</html>
+

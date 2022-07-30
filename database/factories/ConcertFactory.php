@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,6 +18,7 @@ class ConcertFactory extends Factory
 	public function definition(): array
 	{
 		return [
+			'user_id' => User::factory(),
 			'title' => $this->faker->sentence,
 			'subtitle' => $this->faker->sentence,
 			'date' => $this->faker->dateTimeBetween('+2 weeks', '+1 year')->format('Y-m-d H:00:00'),

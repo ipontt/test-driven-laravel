@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
@@ -48,6 +49,11 @@ class Concert extends Model
 	}
 
 	/* RELATIONSHIPS */
+	public function user(): BelongsTo
+	{
+		return $this->belongsTo(User::class);
+	}
+
 	public function orders(): BelongsToMany
 	{
 		return $this->belongsToMany(Order::class, 'tickets')->using(Ticket::class)->as('ticket')->withPivot('reserved_at');
@@ -59,6 +65,18 @@ class Concert extends Model
 	}
 
 	/* METHODS */
+	public function isPublished(): bool
+	{
+		return $this->published_at !== null;
+	}
+
+	public function publish(): self
+	{
+		$this->update(['published_at' => $this->freshTimestamp()]);
+
+		return $this;
+	}
+
 	public function reserveTickets(int $quantity, string $email): Reservation
 	{
 		$tickets = $this->findTickets($quantity)->each->reserve();
@@ -70,7 +88,7 @@ class Concert extends Model
 	{
 		$tickets = $this->tickets()->available()->limit($quantity)->cursor()->remember();
 
-		throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
+		\throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
 
 		return $tickets;
 	}

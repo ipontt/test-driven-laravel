@@ -35,7 +35,7 @@ class FakePaymentGateway implements PaymentGateway
 	{
 		$this->handleCallbacks();
 
-		throw_if(exception: PaymentFailedException::class, condition: !$this->tokens->has($token), message: 'Invalid Payment Token');
+		\throw_if(exception: PaymentFailedException::class, condition: !$this->tokens->has($token), message: 'Invalid Payment Token');
 
 		$charge = new Charge(
 			amount: $amount,
