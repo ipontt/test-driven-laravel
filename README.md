@@ -108,7 +108,7 @@ Currently (laravel 9.x), there is no need to create additional helpers to assert
 
 ### Chapter 17
 
-Dusk can be flimsy at times. It is a powerful tool though.
+Dusk can be flimsy at times. It is a powerful tool though. Sometimes it breaks because of a chrome update. The appropriate chrome driver can be installed again with `php artisan dusk:chrome-driver`
 
 ### Chapter 18
 
@@ -141,4 +141,57 @@ $concert = Auth::user()
     ->create(attributes: $request->safe()->except('ticket_quantity'))
     ->addTickets(quantity: $request->validated('ticket_quantity'))
     ->publish();
+```
+
+### Chapter 19
+
+Currently, the `assertView*` function family can be used to assert against the response's original content. `assertViewIs`, `assertViewHas`, `assertViewHasAll`.
+```php
+$response
+    ->assertStatus(200)
+    ->assertViewHas('concerts', function ($view_concerts) use ($concerts) {
+        return $view_concerts->contains($concerts[0])
+            && $view_concerts->contains($concerts[1])
+            && $view_concerts->contains($concerts[2]);
+    });
+```
+
+With Pest, there are no view related helpers so accessing the response's original content seems to be the better way. Using `getData()` isn't really needed since the `Response` class implements a magic getter to directly access its data.
+
+```php
+expect($response)
+    ->status()->toEqual(200)
+    ->and($response->original->concerts)
+        ->contains($concerts->get(0))->toBeTrue()
+        ->contains($concerts->get(1))->toBeTrue()
+        ->contains($concerts->get(2))->toBeTrue();
+```
+We can using factory sequences to avoid grouping concerts together.
+```php
+[$user, $otherUser] = User::factory()->count(2)->create();
+
+$concerts = Concert::factory()
+    ->count(4)
+    ->state(new Sequence(
+        ['user_id' => $user->id],
+        ['user_id' => $user->id],
+        ['user_id' => $otherUser->id],
+        ['user_id' => $user->id],
+    ))
+    ->create();
+```
+Even if `toBeTrue` and `toBeFalse` both exist as expectations, sometimes using opposite expectations with `->not->` make the test seem clearer
+
+```php
+expect($response->original->concerts)
+    ->contains($concerts->get(0))->toBeTrue()
+    ->contains($concerts->get(1))->toBeTrue()
+    ->contains($concerts->get(2))->toBeFalse();
+    ->contains($concerts->get(3))->toBeTrue();
+// vs
+expect($response->original->concerts)
+    ->contains($concerts->get(0))->toBeTrue()
+    ->contains($concerts->get(1))->toBeTrue()
+    ->contains($concerts->get(2))->not->toBeTrue();
+    ->contains($concerts->get(3))->toBeTrue();
 ```

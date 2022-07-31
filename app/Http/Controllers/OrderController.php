@@ -6,11 +6,13 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+use function response;
+
 class OrderController extends Controller
 {
     public function show(Order $order): Response
     {
-        return \response()->view('orders.show', [
+        return response()->view('orders.show', [
             'order' => $order,
         ]);
     }

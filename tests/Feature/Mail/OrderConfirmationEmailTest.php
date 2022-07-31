@@ -9,7 +9,7 @@ beforeEach(function () {
 });
 
 it('contains a link to the order confirmation page', function () {
-	$this->mailable->assertSeeInHtml(\route('orders.show', [$this->order]));
+	$this->mailable->assertSeeInHtml(route('orders.show', [$this->order]));
 });
 
 it('has a subject', function () {

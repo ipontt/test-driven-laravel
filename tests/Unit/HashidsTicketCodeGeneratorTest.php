@@ -10,7 +10,7 @@ beforeEach(function () {
 it('is at least 6 characters long', function () {
 	$code = $this->ticketCodeGenerator->generateFor(ticket: Ticket::make(['id' => 1]));
 
-	expect(\strlen($code))->toBeGreaterThanOrEqual(6);
+	expect(strlen($code))->toBeGreaterThanOrEqual(6);
 });
 
 it('can only contain uppercase leters', function () {

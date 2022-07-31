@@ -5,6 +5,7 @@ use App\Models\Order;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
+
 use function Pest\Laravel\get;
 
 test('user can view their order confirmation', function () {

@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 
+use function throw_if;
+
 class Concert extends Model
 {
 	use HasFactory;
 
 	protected $guarded = [];
+
 	protected $dates = ['date'];
 
 	/* SCOPES */
@@ -88,7 +91,7 @@ class Concert extends Model
 	{
 		$tickets = $this->tickets()->available()->limit($quantity)->cursor()->remember();
 
-		\throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
+		throw_if(exception: NotEnoughTicketsException::class, condition: $quantity > $tickets->count());
 
 		return $tickets;
 	}

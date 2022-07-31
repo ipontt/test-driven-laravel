@@ -9,11 +9,13 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+use function response;
+
 class ConcertController extends Controller
 {
 	public function show(Concert $concert): Response
 	{
-		return \response()->view('concerts.show', [
+		return response()->view('concerts.show', [
 			'concert' => $concert,
 		]);
 	}

@@ -8,6 +8,9 @@ use App\Billing\Exceptions\PaymentFailedException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+use function collect;
+use function throw_if;
+
 class FakePaymentGateway implements PaymentGateway
 {
 	private Collection $charges;
@@ -35,7 +38,7 @@ class FakePaymentGateway implements PaymentGateway
 	{
 		$this->handleCallbacks();
 
-		\throw_if(exception: PaymentFailedException::class, condition: !$this->tokens->has($token), message: 'Invalid Payment Token');
+		throw_if(exception: PaymentFailedException::class, condition: !$this->tokens->has($token), message: 'Invalid Payment Token');
 
 		$charge = new Charge(
 			amount: $amount,

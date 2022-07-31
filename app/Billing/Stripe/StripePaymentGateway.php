@@ -7,16 +7,22 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Exceptions\PaymentFailedException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Stripe\Charge as StripeCharge;
+use Stripe\Exception\InvalidRequestException;
+use Stripe\StripeClient;
+
+use function collect;
+use function date;
 
 class StripePaymentGateway implements PaymentGateway
 {
-	private \Stripe\StripeClient $stripe;
+	private StripeClient $stripe;
 
 	public const TEST_CARD_NUMBER = '4242424242424242';
 
 	public function __construct(string $apiKey)
 	{
-		$this->stripe = new \Stripe\StripeClient($apiKey);
+		$this->stripe = new StripeClient($apiKey);
 	}
 
 	public function charge(int $amount, string $token): Charge
@@ -29,7 +35,7 @@ class StripePaymentGateway implements PaymentGateway
 					'currency' => 'usd',
 				],
 			);
-		} catch (\Stripe\Exception\InvalidRequestException $e) {
+		} catch (InvalidRequestException $e) {
 			throw new PaymentFailedException('Invalid Payment Token');
 		}
 
@@ -59,21 +65,21 @@ class StripePaymentGateway implements PaymentGateway
 		$callback($this);
 
 		return $this->newChargesSince(charge: $latestCharge)
-			->map(fn (\Stripe\Charge $stripeCharge) => new Charge(
+			->map(fn (StripeCharge $stripeCharge) => new Charge(
 				amount: $stripeCharge->amount,
 				cardLastFour: $stripeCharge->source->last4,
 			))
 			->values();
 	}
 
-	private function lastCharge(): ?\Stripe\Charge
+	private function lastCharge(): ?StripeCharge
 	{
 		$charges = $this->stripe->charges->all(params: ['limit' => 1]);
 
 		return Arr::first(array: $charges['data']);
 	}
 
-	private function newChargesSince(?\Stripe\Charge $charge): Collection
+	private function newChargesSince(?StripeCharge $charge): Collection
 	{
 		$charges = $this->stripe->charges->all(params: ['ending_before' => $charge?->id]);
 

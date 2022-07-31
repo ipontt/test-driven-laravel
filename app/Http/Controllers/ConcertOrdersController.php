@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
 
+use function response;
+
 class ConcertOrdersController extends Controller
 {
 	public function __construct(private PaymentGateway $paymentGateway) {}
@@ -40,12 +42,12 @@ class ConcertOrdersController extends Controller
 
 			Mail::to($order->email)->send(new OrderConfirmationEmail(order: $order));
 
-			return \response()->json(status: Response::HTTP_CREATED, data: OrderResource::make($order));
+			return response()->json(status: Response::HTTP_CREATED, data: OrderResource::make($order));
 		} catch (PaymentFailedException $e) {
 			$reservation->cancel();
-			return \response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
+			return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
 		} catch (NotEnoughTicketsException $e) {
-			return \response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
+			return response()->json(status: Response::HTTP_UNPROCESSABLE_ENTITY);
 		}
 	}
 }

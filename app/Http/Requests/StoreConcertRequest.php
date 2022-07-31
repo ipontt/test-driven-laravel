@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use function vsprintf;
+
 class StoreConcertRequest extends FormRequest
 {
 	protected function prepareForValidation(): void

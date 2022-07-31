@@ -19,9 +19,13 @@ Route::name('auth.')->group(function () {
 });
 
 Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(function () {
-	Route::get('/concerts/create', [BackstageConcertController::class, 'create'])->name('concerts.create');
-	Route::post('/concerts', [BackstageConcertController::class, 'store'])->name('concerts.store');
+	Route::prefix('/concerts')->name('concerts.')->controller(BackstageConcertController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::get('/create', 'create')->name('create');
+		Route::post('/', 'store')->name('store');
+	});
 });
+
 /*
 Route::get('success', function (\Illuminate\Http\Request $request) {
 	dump(

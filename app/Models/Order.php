@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Str;
 
+use function number_format;
+use function wordwrap;
+
 class Order extends Model
 {
 	use HasFactory;
@@ -44,7 +47,7 @@ class Order extends Model
 	public function makedCardNumber(): Attribute
 	{
 		return Attribute::make(
-			get: fn () => \wordwrap(
+			get: fn () => wordwrap(
 				string: Str::padLeft(value: $this->card_last_four, length: 16, pad: '*'),
 				width: 4,
 				break: ' ',

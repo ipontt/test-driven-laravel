@@ -11,11 +11,20 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+use function response;
+
 class ConcertController extends Controller
 {
+	public function index(): Response
+	{
+		return response()->view('backstage.concerts.index', [
+			'concerts' => Auth::user()->concerts,
+		]);
+	}
+
 	public function create(): Response
 	{
-		return \response()->view('concerts.create');
+		return response()->view('backstage.concerts.create');
 	}
 
 	public function store(StoreConcertRequest $request): RedirectResponse
@@ -26,6 +35,6 @@ class ConcertController extends Controller
 			->addTickets(quantity: $request->validated('ticket_quantity'))
 			->publish();
 
-		return \response()->redirectToRoute('concerts.show', [$concert]);
+		return response()->redirectToRoute('concerts.show', [$concert]);
 	}
 }
