@@ -195,3 +195,29 @@ expect($response->original->concerts)
     ->contains($concerts->get(2))->not->toBeTrue();
     ->contains($concerts->get(3))->toBeTrue();
 ```
+
+### Chapter 20
+
+Using explicit route model binding and form requests, some logic can be offloaded from the controller in particular for validation purposes.
+
+### Chapter 21
+
+Model factories allow for a lot of relationship logic, but it can get pretty verbose.
+```php
+Concert::factory()->has(Ticket::factory()->count(3))->create();
+```
+Coupling the `ticket_quantity` attribute to the `published` state can be done however
+```php
+public function published(?int $ticket_quantity = null): static
+{
+    $ticket_quantity ??= $this->faker->numberBetween(5, 20);
+
+    return $this->has(Ticket::factory()->count($ticket_quantity))->state(fn (array $attributes): array => [
+        'ticket_quantity' => $ticket_quantity,
+        'published_at' => $this->faker->dateTimeBetween('+1 week', '+2 weeks'),
+    ]);
+}
+```
+```php
+Concert::factory()->published(3)->create();
+```

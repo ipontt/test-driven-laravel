@@ -29,6 +29,7 @@ class UpdateConcertRequest extends FormRequest
 			 'state' => ['required'],
 			 'zip' => ['required'],
 			 'ticket_price' => ['required', 'numeric', 'min:500'],
+			 'ticket_quantity' => ['required', 'numeric', 'integer', 'min:1'],
 		];
 	}
 }

@@ -29,7 +29,7 @@ class StoreConcertRequest extends FormRequest
 			 'state' => ['required'],
 			 'zip' => ['required'],
 			 'ticket_price' => ['required', 'numeric', 'min:500'],
-			 'ticket_quantity' => ['required', 'numeric', 'min:1'],
+			 'ticket_quantity' => ['required', 'numeric', 'integer', 'min:1'],
 		];
 	}
 }

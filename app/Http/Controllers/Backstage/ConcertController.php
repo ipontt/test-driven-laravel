@@ -33,8 +33,7 @@ class ConcertController extends Controller
 	{
 		$concert = Auth::user()
 			->concerts()
-			->create(attributes: $request->safe()->except('ticket_quantity'))
-			->addTickets(quantity: $request->validated('ticket_quantity'))
+			->create(attributes: $request->validated())
 			->publish();
 
 		return response()->redirectToRoute('concerts.show', [$concert]);

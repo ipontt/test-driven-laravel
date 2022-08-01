@@ -4,11 +4,11 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\FakePaymentGateway;
 use App\Mail\OrderConfirmationEmail;
 use App\Models\Concert;
+use App\Models\Ticket;
 use Facades\App\TicketCodeGenerator;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-
 use function Pest\Laravel\postJson;
 
 
@@ -24,7 +24,7 @@ beforeEach(function () {
 test('customer can purchase tickets for published concerts', function () {
 	$confirmation_number = (string) Str::freezeUuids();
 	TicketCodeGenerator::shouldReceive('generateFor')->andReturn('TICKETCODE1', 'TICKETCODE2', 'TICKETCODE3');
-	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create(['ticket_price' => 3250]);
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -58,7 +58,7 @@ test('customer can purchase tickets for published concerts', function () {
 });
 
 test('customer cannot purchase tickets for unpublished concerts', function () {
-	$concert = Concert::factory()->unpublished()->create()->addTickets(3);
+	$concert = Concert::factory()->has(Ticket::factory()->count(3))->unpublished()->create();
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -72,7 +72,7 @@ test('customer cannot purchase tickets for unpublished concerts', function () {
 });
 
 test('customer cannot purchase tickets that another customer is trying to purchase', function () {
-	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create(['ticket_price' => 3250]);
 
 	$this->paymentGateway->beforeFirstCharge(function ($paymentGateway) use ($concert){
 		$response = postJson("/concerts/{$concert->id}/orders", [
@@ -100,7 +100,7 @@ test('customer cannot purchase tickets that another customer is trying to purcha
 });
 
 test('an order is not created if payment fails', function () {
-	$concert = Concert::factory()->published()->create(['ticket_price' => 3250])->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create(['ticket_price' => 3250]);
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -116,7 +116,7 @@ test('an order is not created if payment fails', function () {
 });
 
 test('cannot purchase more tickets than are available', function () {
-	$concert = Concert::factory()->published()->create()->addTickets(50);
+	$concert = Concert::factory()->published(ticket_quantity: 50)->create();
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -131,7 +131,7 @@ test('cannot purchase more tickets than are available', function () {
 });
 
 test('an email is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'ticket_quantity' => 3,
@@ -150,7 +150,7 @@ test('a valid email is required to purchase tickets', function ($email) {
 })->with([null, 'not an email', 1, new StdClass]);
 
 test('ticket quantity is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -159,7 +159,7 @@ test('ticket quantity is required to purchase tickets', function () {
 });
 
 test('ticket quantity must be a positive integer. At least 1', function ($ticket_quantity) {
-	$concert = Concert::factory()->published()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -169,7 +169,7 @@ test('ticket quantity must be a positive integer. At least 1', function ($ticket
 })->with([0, -1, 'not a number', 1.235, new StdClass]);
 
 test('a payment token is required to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -178,7 +178,7 @@ test('a payment token is required to purchase tickets', function () {
 });
 
 test('the payment token must be valid to purchase tickets', function () {
-	$concert = Concert::factory()->published()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 
 	postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',

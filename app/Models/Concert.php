@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\ConcertAlreadyPublishedException;
 use App\Exceptions\NotEnoughTicketsException;
 use App\Reservation;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,9 +76,12 @@ class Concert extends Model
 
 	public function publish(): self
 	{
-		$this->update(['published_at' => $this->freshTimestamp()]);
+		throw_if(exception: ConcertAlreadyPublishedException::class, condition: $this->isPublished());
 
-		return $this;
+		return tap($this, function (Concert $concert) {
+			$this->addTickets($this->ticket_quantity);
+			$this->update(['published_at' => $this->freshTimestamp()]);
+		});
 	}
 
 	public function reserveTickets(int $quantity, string $email): Reservation
@@ -96,7 +100,7 @@ class Concert extends Model
 		return $tickets;
 	}
 
-	public function addTickets(int $quantity): self
+	private function addTickets(int $quantity): self
 	{
 		Ticket::factory()->for($this)->count($quantity)->create();
 

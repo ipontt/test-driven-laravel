@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ConcertAlreadyPublishedException;
 use App\Exceptions\NotEnoughTicketsException;
 use App\Models\Concert;
 use App\Models\Order;
@@ -32,13 +33,26 @@ test('concerts with a published_at date are published', function () {
 });
 
 it('can be published', function () {
-	$concert = Concert::factory()->create(['published_at' => null]);
-	expect($concert)->isPublished()->toBeFalse();
+	$concert = Concert::factory()->create([
+		'ticket_quantity' => 10,
+		'published_at' => null,
+	]);
+	expect($concert)
+		->ticketsRemaining()->toEqual(0)
+		->isPublished()->toBeFalse();
 
 	$concert->publish();
 
-	expect($concert)->isPublished()->toBeTrue();
+	expect($concert)
+		->ticketsRemaining()->toEqual(10)
+		->isPublished()->toBeTrue();
 });
+
+it('throws an exception when trying to publish an already published concert', function () {
+	$concert = Concert::factory()->published()->create();
+
+	$concert->publish();
+})->throws(ConcertAlreadyPublishedException::class);
 
 it('can add tickets', function () {
 	$concert = Concert::factory()->create();
@@ -46,7 +60,7 @@ it('can add tickets', function () {
 	$concert->addTickets(50);
 
 	expect($concert)->ticketsRemaining()->toBe(50);
-});
+})->skip();
 
 test('tickets remaining does not include tickets associated with an order', function () {
 	$concert = Concert::factory()->create();
@@ -59,7 +73,7 @@ test('tickets remaining does not include tickets associated with an order', func
 });
 
 it('can reserve available tickets', function () {
-	$concert = Concert::factory()->create()->addTickets(3);
+	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
 	expect($concert)->ticketsRemaining()->toBe(3);
 
 	$reservation = $concert->reserveTickets(quantity: 2, email: 'john@example.com');
@@ -71,7 +85,7 @@ it('can reserve available tickets', function () {
 });
 
 it('cannot reserve tickets that have already been reserved', function () {
-	$concert = Concert::factory()->create()->addTickets(10);
+	$concert = Concert::factory()->published(ticket_quantity: 10)->create();
 	$concert->reserveTickets(quantity: 8, email: 'jane@example.com');
 
 	expect(fn () => $concert->reserveTickets(quantity: 3, email: 'john@example.com'))
@@ -80,7 +94,7 @@ it('cannot reserve tickets that have already been reserved', function () {
 });
 
 it('cannot reserve tickets that have already been purchased', function () {
-	$concert = Concert::factory()->create()->addTickets(10);
+	$concert = Concert::factory()->published(ticket_quantity: 10)->create();
 	$order = Order::factory()->create()->tickets()->saveMany($concert->tickets->take(8));
 
 	expect(fn () => $concert->reserveTickets(quantity: 3, email: 'john@example.com'))
@@ -89,7 +103,7 @@ it('cannot reserve tickets that have already been purchased', function () {
 });
 
 test('trying to reserve more tickets than are available triggers an exception', function () {
-	$concert = Concert::factory()->create()->addTickets(10);
+	$concert = Concert::factory()->published(ticket_quantity: 10)->create();
 
 	expect(fn () => $concert->reserveTickets(quantity: 11, email: 'jane@example.com'))
 		->toThrow(NotEnoughTicketsException::class)

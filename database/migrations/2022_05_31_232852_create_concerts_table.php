@@ -14,7 +14,8 @@ return new class extends Migration
 			$table->string('title');
 			$table->string('subtitle')->nullable();
 			$table->dateTime('date');
-			$table->integer('ticket_price');
+			$table->unsignedInteger('ticket_price');
+			$table->unsignedInteger('ticket_quantity');
 			$table->string('venue');
 			$table->string('venue_address');
 			$table->string('city');

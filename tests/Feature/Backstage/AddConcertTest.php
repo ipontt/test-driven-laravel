@@ -81,6 +81,7 @@ test('adding a valid concert', function () {
 		->state->toEqual('ON')
 		->zip->toEqual('17916')
 		->ticket_price->toEqual(3250)
+		->ticket_quantity->toEqual(75)
 		->ticketsRemaining()->toEqual(75)
 		->isPublished()->toBeTrue()
 		->and($concert->user->is($user))->toBeTrue();
@@ -365,6 +366,21 @@ test('ticket quantity must be numeric', function () {
 		->post(
 			uri: route('backstage.concerts.store'),
 			data: getValidConcertData(overrides: ['ticket_quantity' => 'not a number'])
+		);
+
+	$response
+		->assertRedirect(uri: route('backstage.concerts.create'))
+		->assertSessionHasErrors(keys: ['ticket_quantity']);
+});
+
+test('ticket quantity must be an integer', function () {
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->from(url: route('backstage.concerts.create'))
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(overrides: ['ticket_quantity' => '7.8'])
 		);
 
 	$response
