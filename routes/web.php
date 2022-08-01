@@ -7,8 +7,8 @@ use App\Http\Controllers\ConcertOrdersController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/concerts/{publishedConcert}', [ConcertController::class, 'show'])->name('concerts.show');
-Route::post('/concerts/{publishedConcert}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
+Route::get('/concerts/{published_concert}', [ConcertController::class, 'show'])->name('concerts.show');
+Route::post('/concerts/{published_concert}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');
 
 Route::get('/orders/{order:confirmation_number}', [OrderController::class, 'show'])->name('orders.show');
 
@@ -23,6 +23,8 @@ Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(fun
 		Route::get('/', 'index')->name('index');
 		Route::get('/create', 'create')->name('create');
 		Route::post('/', 'store')->name('store');
+		Route::get('/{user_concert}/edit', 'edit')->name('edit');
+		Route::patch('/{user_concert}', 'update')->name('update');
 	});
 });
 

@@ -6,8 +6,12 @@ use App\Models\Concert;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+
+use function base_path;
+use function response;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -15,7 +19,8 @@ class RouteServiceProvider extends ServiceProvider
 
 	public function boot(): void
 	{
-		Route::bind('publishedConcert', fn ($value) => Concert::published()->findOrFail($value));
+		Route::bind('user_concert', fn ($id) => Auth::authenticate()->concerts()->findOrFail($id));
+		Route::bind('published_concert', fn ($id) => Concert::published()->findOrFail($id));
 
 		$this->configureRateLimiting();
 
