@@ -172,12 +172,12 @@ We can using factory sequences to avoid grouping concerts together.
 
 $concerts = Concert::factory()
     ->count(4)
-    ->state(new Sequence(
+    ->sequence(
         ['user_id' => $user->id],
         ['user_id' => $user->id],
         ['user_id' => $otherUser->id],
         ['user_id' => $user->id],
-    ))
+    )
     ->create();
 ```
 Even if `toBeTrue` and `toBeFalse` both exist as expectations, sometimes using opposite expectations with `->not->` make the test seem clearer
@@ -220,4 +220,16 @@ public function published(?int $ticket_quantity = null): static
 ```
 ```php
 Concert::factory()->published(3)->create();
+```
+
+### Chapter 22
+
+There is a very good collection method for dividing a collection in 2 based on a condition. And it can be used with higher order messages.
+```php
+// Instead of
+$published_concerts = Auth::user()->concerts->filter->isPublished();
+$unpublished_concerts = Auth::user()->concerts->reject->isPublished();
+
+// One liner
+[$published_concerts, $unpublished_concerts] = Auth::user()->concerts->partition->isPublished();
 ```

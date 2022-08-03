@@ -82,8 +82,8 @@ test('adding a valid concert', function () {
 		->zip->toEqual('17916')
 		->ticket_price->toEqual(3250)
 		->ticket_quantity->toEqual(75)
-		->ticketsRemaining()->toEqual(75)
-		->isPublished()->toBeTrue()
+		->isPublished()->toBeFalse()
+		->ticketsRemaining()->toEqual(0)
 		->and($concert->user->is($user))->toBeTrue();
 });
 

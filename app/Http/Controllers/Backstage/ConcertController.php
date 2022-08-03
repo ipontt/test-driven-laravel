@@ -19,8 +19,11 @@ class ConcertController extends Controller
 {
 	public function index(): Response
 	{
+		[$published_concerts, $unpublished_concerts] = Auth::user()->concerts->partition->isPublished();
+
 		return response()->view('backstage.concerts.index', [
-			'concerts' => Auth::user()->concerts,
+			'published_concerts' => $published_concerts,
+			'unpublished_concerts' => $unpublished_concerts,
 		]);
 	}
 
@@ -33,8 +36,7 @@ class ConcertController extends Controller
 	{
 		$concert = Auth::user()
 			->concerts()
-			->create(attributes: $request->validated())
-			->publish();
+			->create(attributes: $request->validated());
 
 		return response()->redirectToRoute('concerts.show', [$concert]);
 	}

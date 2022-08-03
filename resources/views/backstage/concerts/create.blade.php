@@ -2,6 +2,14 @@
 
 @section('title', 'Add a concert')
 
+@section('header')
+
+<div class="bg-white">
+	<h1 class="max-w-7xl mx-auto py-4 px-8 text-xl font-light">Add a concert</h1>
+</div>
+
+@endsection
+
 @section('content')
 
 <form action="{{ route('backstage.concerts.store') }}" method="POST">

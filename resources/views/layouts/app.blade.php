@@ -30,9 +30,9 @@
 				</div>
 			</div>
 		</nav>
-		<div class="bg-white">
-			<h1 class="max-w-7xl mx-auto py-4 px-8 text-xl font-light">@yield('title', '')</h1>
-		</div>
+		<header>
+			@yield('header')
+		</header>
 	@endauth
 
 	<div class="bg-gray-100 min-h-screen border border-b-gray-200">

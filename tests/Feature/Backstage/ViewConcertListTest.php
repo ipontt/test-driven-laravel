@@ -19,14 +19,23 @@ test('guests cannot view a promoter\'s concert list', function () {
 
 test('promoters can only view a list of their own concerts', function () {
 	[$user, $otherUser] = User::factory()->count(2)->create();
-	$concerts = Concert::factory()
-		->count(4)
-		->state(new Sequence(
-			['user_id' => $user->id],
+	$published_concerts = Concert::factory()
+		->count(3)
+		->published()
+		->sequence(
 			['user_id' => $user->id],
 			['user_id' => $otherUser->id],
 			['user_id' => $user->id],
-		))
+		)
+		->create();
+	$unpublished_concerts = Concert::factory()
+		->count(3)
+		->unpublished()
+		->sequence(
+			['user_id' => $user->id],
+			['user_id' => $otherUser->id],
+			['user_id' => $user->id],
+		)
 		->create();
 
 	$response = actingAs($user)->get(url('/backstage/concerts'));
@@ -35,9 +44,18 @@ test('promoters can only view a list of their own concerts', function () {
 	expect($response->original)
 		->toBeInstanceOf(View::class)
 		->getName()->toEqual('backstage.concerts.index')
-		->and($response->original->concerts)
-			->contains($concerts->get(0))->toBeTrue()
-			->contains($concerts->get(1))->toBeTrue()
-			->contains($concerts->get(2))->not->toBeTrue()
-			->contains($concerts->get(3))->toBeTrue();
+		->and($response->original->published_concerts)
+			->contains($published_concerts->get(0))->toBeTrue()
+			->contains($published_concerts->get(1))->not->toBeTrue()
+			->contains($published_concerts->get(2))->toBeTrue()
+			->contains($unpublished_concerts->get(0))->not->toBeTrue()
+			->contains($unpublished_concerts->get(1))->not->toBeTrue()
+			->contains($unpublished_concerts->get(2))->not->toBeTrue()
+		->and($response->original->unpublished_concerts)
+			->contains($published_concerts->get(0))->not->toBeTrue()
+			->contains($published_concerts->get(1))->not->toBeTrue()
+			->contains($published_concerts->get(2))->not->toBeTrue()
+			->contains($unpublished_concerts->get(0))->toBeTrue()
+			->contains($unpublished_concerts->get(1))->not->toBeTrue()
+			->contains($unpublished_concerts->get(2))->toBeTrue();
 });
