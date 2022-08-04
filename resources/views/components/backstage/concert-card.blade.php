@@ -16,21 +16,24 @@
 		</div>
 	</div>
 	@if ($attributes->get('published'))
-		<div class="-mt-px grid grid-cols-1 divide-x divide-gray-200">
-			<div class="text-center my-4">
-				<a href="{{ route('concerts.show', [$concert]) }}" class="px-4 text-base font-bold text-gray-700 rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-gray-300 hover:bg-gray-200 focus:ring-gray-400 inline-flex items-center">Get Ticket Link</a>
+		<div class="-mt-px grid grid-cols-2 items-center divide-x-2 divide-transparent">
+			<div class="pl-6 my-4 text-left">
+				<a href="{{ route('backstage.published-concert-orders.index', [$concert]) }}" class="py-1 px-4 text-sm font-bold text-gray-700 rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-gray-300 hover:bg-gray-200 focus:ring-gray-400 inline-flex items-center">Manage</a>
+			</div>
+			<div class="pr-6 my-4 text-right">
+				<a href="{{ route('concerts.show', [$concert]) }}" class="py-1 px-4 text-sm font-bold text-white rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-sky-600 hover:bg-sky-700 focus:ring-sky-500">Ticket Link</a>
 			</div>
 		</div>
 	@else
-		<div class="-mt-px grid grid-cols-2 divide-x divide-gray-200">
-			<div class="text-center my-4">
-				<a href="{{ route('backstage.concerts.edit', [$concert]) }}" class="px-4 text-base font-bold text-gray-700 rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-gray-300 hover:bg-gray-200 focus:ring-gray-400 inline-flex items-center">Edit</a>
+		<div class="-mt-px grid grid-cols-2 items-center divide-x-2 divide-transparent">
+			<div class="pl-6 my-4 text-left">
+				<a href="{{ route('backstage.concerts.edit', [$concert]) }}" class="py-1 px-4 text-sm font-bold text-gray-700 rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-gray-300 hover:bg-gray-200 focus:ring-gray-400 inline-flex items-center">Edit</a>
 			</div>
-			<div class="text-center my-4">
-				<form action="{{ route('backstage.published_concerts.store') }}" method="POST">
+			<div class="pr-6 my-4 text-right">
+				<form action="{{ route('backstage.published-concerts.store') }}" method="POST">
 					@csrf
 					<input type="hidden" name="concert_id" value="{{ $concert->id }}">					
-					<button type="submit" class="px-4 text-base font-bold text-white rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-sky-600 hover:bg-sky-700 focus:ring-sky-500">Publish</button>
+					<button type="submit" class="py-1 px-4 text-sm font-bold text-white rounded-md border border-transparent shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none bg-sky-600 hover:bg-sky-700 focus:ring-sky-500">Publish</button>
 				</form>
 			</div>
 		</div>

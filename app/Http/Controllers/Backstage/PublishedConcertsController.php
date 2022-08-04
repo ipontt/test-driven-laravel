@@ -15,16 +15,16 @@ use function response;
 
 class PublishedConcertsController extends Controller
 {
-    public function store(Request $request): RedirectResponse
-    {
-        $concert = Auth::user()->concerts()->findOrFail($request->concert_id);
+	public function store(Request $request): RedirectResponse
+	{
+		$concert = Auth::user()->concerts()->findOrFail($request->concert_id);
 
-        try {
-            $concert->publish();
-        } catch (ConcertAlreadyPublishedException $e) {
-            abort(code: Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+		try {
+			$concert->publish();
+		} catch (ConcertAlreadyPublishedException $e) {
+			abort(code: Response::HTTP_UNPROCESSABLE_ENTITY);
+		}
 
-        return response()->redirectToRoute('backstage.concerts.index', status: Response::HTTP_CREATED);
-    }
+		return response()->redirectToRoute('backstage.concerts.index', status: Response::HTTP_CREATED);
+	}
 }

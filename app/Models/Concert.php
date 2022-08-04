@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 
+use function number_format;
+use function tap;
 use function throw_if;
 
 class Concert extends Model
@@ -60,7 +62,7 @@ class Concert extends Model
 
 	public function orders(): BelongsToMany
 	{
-		return $this->belongsToMany(Order::class, 'tickets')->using(Ticket::class)->as('ticket')->withPivot('reserved_at');
+		return $this->belongsToMany(Order::class, 'tickets')->using(Ticket::class)->as('ticket')->withPivot('reserved_at', 'code');
 	}
 
 	public function tickets(): HasMany
@@ -109,7 +111,33 @@ class Concert extends Model
 
 	public function ticketsRemaining(): int
 	{
-		return $this->tickets()->available()->count();
+		return $this->tickets_remaining ?? $this->loadCount([
+			'tickets as tickets_remaining' => fn (Builder $tickets) => $tickets->available(),
+		])->tickets_remaining;
+	}
+
+	public function ticketsSold(): int
+	{
+		return $this->tickets_sold ?? $this->loadCount([
+			'tickets as tickets_sold' => fn (Builder $tickets) => $tickets->sold(),
+		])->tickets_sold;
+	}
+
+	public function totalTickets(): int
+	{
+		return $this->total_tickets ?? $this->loadCount([
+			'tickets as total_tickets',
+		])->total_tickets;
+	}
+
+	public function percentSoldOut(): float
+	{
+		return number_format(num: 100 * $this->ticketsSold() / $this->totalTickets(), decimals: 2);
+	}
+
+	public function revenueInDollars(): float
+	{
+		return $this->orders()->sum('amount') / 100;
 	}
 
 	public function hasOrderFor(string $email): bool

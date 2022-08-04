@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Date;
 
 it('can get formatted date')
 	->expect(fn () => Concert::factory()->make(['date' => Date::parse('December 13, 2016 8:00pm')]))
-	->formatted_date->toBe('December 13, 2016');
+	->formatted_date->toEqual('December 13, 2016');
 
 it('can get formatted start time')
 	->expect(fn () => Concert::factory()->make(['date' => Date::parse('December 13, 2016 8:00pm')]))
-	->formatted_start_time->toBe('8:00pm');
+	->formatted_start_time->toEqual('8:00pm');
 
 it('can get ticket price in dollars')
 	->expect(fn () => Concert::factory()->make(['ticket_price' => 6750]))
-	->ticket_price_in_dollars->toBe('67.50');
+	->ticket_price_in_dollars->toEqual('67.50');
 
 test('concerts with a published_at date are published', function () {
 	$publishedConcertA = Concert::factory()->create(['published_at' => Date::parse('-1 week')]);
@@ -27,9 +27,9 @@ test('concerts with a published_at date are published', function () {
 	$publishedConcerts = Concert::published()->get();
 
 	expect($publishedConcerts)
-		->contains($publishedConcertA)->toBe(true)
-		->contains($publishedConcertB)->toBe(true)
-		->contains($unpublishedConcert)->toBe(false);
+		->contains($publishedConcertA)->toBeTrue()
+		->contains($publishedConcertB)->toBeTrue()
+		->contains($unpublishedConcert)->toBeFalse();
 });
 
 it('can be published', function () {
@@ -43,7 +43,7 @@ it('can be published', function () {
 
 	$concert->publish();
 
-	expect($concert)
+	expect($concert->fresh())
 		->ticketsRemaining()->toEqual(10)
 		->isPublished()->toBeTrue();
 });
@@ -54,34 +54,70 @@ it('throws an exception when trying to publish an already published concert', fu
 	$concert->publish();
 })->throws(ConcertAlreadyPublishedException::class);
 
-it('can add tickets', function () {
-	$concert = Concert::factory()->create();
-
-	$concert->addTickets(50);
-
-	expect($concert)->ticketsRemaining()->toBe(50);
-})->skip();
-
 test('tickets remaining does not include tickets associated with an order', function () {
 	$concert = Concert::factory()->create();
 	$concert->tickets()->saveMany([
-		...Ticket::factory()->for(Order::factory())->count(20)->make(),
-		...Ticket::factory()->count(40)->make(),
+		...Ticket::factory()->for(Order::factory())->count(2)->make(),
+		...Ticket::factory()->count(4)->make(),
 	]);
 
-	expect($concert)->ticketsRemaining()->toBe(40);
+	expect($concert)->ticketsRemaining()->toEqual(4);
+});
+
+test('tickets sold only include tickets associated with an order', function () {
+	$concert = Concert::factory()->create();
+	$concert->tickets()->saveMany([
+		...Ticket::factory()->for(Order::factory())->count(2)->make(),
+		...Ticket::factory()->count(4)->make(),
+	]);
+
+	expect($concert)->ticketsSold()->toEqual(2);
+});
+
+test('total tickets include all tickets associated with an order', function () {
+	$concert = Concert::factory()->create();
+	$concert->tickets()->saveMany([
+		...Ticket::factory()->for(Order::factory())->count(2)->make(),
+		...Ticket::factory()->count(4)->make(),
+	]);
+
+	expect($concert)->totalTickets()->toEqual(6);
+});
+
+it('can calculate the percentage of tickets sold', function () {
+	$concert = Concert::factory()->create();
+	$concert->tickets()->saveMany([
+		...Ticket::factory()->for(Order::factory())->count(2)->make(),
+		...Ticket::factory()->count(5)->make(),
+	]);
+
+	// 2 / 7 = 0,285714286
+	expect($concert)->percentSoldOut()->toEqual(28.57);
+});
+
+it('can calculate the revenue in dollars', function () {
+	$concert = Concert::factory()->create();
+	$concert->tickets()->saveMany([
+		Ticket::factory()->for(Order::factory()->create(['amount' => 3850]))->make(),
+		Ticket::factory()->for(Order::factory()->create(['amount' => 9625]))->make(),
+		...Ticket::factory()->count(5)->make(),
+	]);
+
+	// 3850 + 9625 = 13475 cents = 134.75 usd
+	expect($concert)->revenueInDollars()->toEqual(134.75);
+
 });
 
 it('can reserve available tickets', function () {
 	$concert = Concert::factory()->published(ticket_quantity: 3)->create();
-	expect($concert)->ticketsRemaining()->toBe(3);
+	expect($concert)->ticketsRemaining()->toEqual(3);
 
 	$reservation = $concert->reserveTickets(quantity: 2, email: 'john@example.com');
 
 	expect($reservation)
 		->tickets->toHaveCount(2)
-		->email->toBe('john@example.com')
-		->and($concert)->ticketsRemaining()->toBe(1);
+		->email->toEqual('john@example.com')
+		->and($concert->fresh())->ticketsRemaining()->toEqual(1);
 });
 
 it('cannot reserve tickets that have already been reserved', function () {
@@ -90,7 +126,7 @@ it('cannot reserve tickets that have already been reserved', function () {
 
 	expect(fn () => $concert->reserveTickets(quantity: 3, email: 'john@example.com'))
 		->toThrow(NotEnoughTicketsException::class)
-		->and($concert)->ticketsRemaining()->toBe(2);
+		->and($concert)->ticketsRemaining()->toEqual(2);
 });
 
 it('cannot reserve tickets that have already been purchased', function () {
@@ -99,7 +135,7 @@ it('cannot reserve tickets that have already been purchased', function () {
 
 	expect(fn () => $concert->reserveTickets(quantity: 3, email: 'john@example.com'))
 		->toThrow(NotEnoughTicketsException::class)
-		->and($concert)->ticketsRemaining()->toBe(2);
+		->and($concert)->ticketsRemaining()->toEqual(2);
 });
 
 test('trying to reserve more tickets than are available triggers an exception', function () {

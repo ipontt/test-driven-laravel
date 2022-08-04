@@ -233,3 +233,44 @@ $unpublished_concerts = Auth::user()->concerts->reject->isPublished();
 // One liner
 [$published_concerts, $unpublished_concerts] = Auth::user()->concerts->partition->isPublished();
 ```
+
+### Chapter 23
+
+An issue with methods such as `ticketsRemaining()`, `ticketsSold()` and `totalTickets()`, is they query the database every time they're used. 
+
+ - `ticketsRemaining()` is called 1 time in the view
+ - `ticketsSold()` is called 2 times in the view
+ - `totalTickets()` is called 2 times in the view
+ - `ticketsSold()` and `totalTickets()` are called once every time `percentageSoldOut` is called and it is called 2 times in the view.
+
+This gives us 1 + 2 + 2 + 2 * (1 + 1) = 9 queries, out of which 6 are duplicates. Eloquent provides the ability to load aggregate values lazily, so by doing so, we can eliminate every duplicate query. If the count changes, refreshing the model will wipe the loaded aggregates.
+
+```php
+public function ticketsRemaining(): int
+{
+    return $this->tickets_remaining ?? $this->loadCount([
+        'tickets as tickets_remaining' => fn (Builder $tickets) => $tickets->available(),
+    ])->tickets_remaining;
+}
+
+public function ticketsSold(): int
+{
+    return $this->tickets_sold ?? $this->loadCount([
+        'tickets as tickets_sold' => fn (Builder $tickets) => $tickets->sold(),
+    ])->tickets_sold;
+}
+
+public function totalTickets(): int
+{
+    return $this->total_tickets ?? $this->loadCount([
+        'tickets as total_tickets',
+    ])->total_tickets;
+}
+
+public function percentSoldOut(): float
+{
+    return number_format(num: 100 * $this->ticketsSold() / $this->totalTickets(), decimals: 2);
+}
+```
+
+Laravel seems to be doing the BelongsToMany query differently now, so the duplicate Orders do not show up.

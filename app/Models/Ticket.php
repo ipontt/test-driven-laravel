@@ -27,6 +27,11 @@ class Ticket extends Pivot
 		$query->whereNull('order_id')->whereNull('reserved_at');
 	}
 
+	public function scopeSold(Builder $query): void
+	{
+		$query->whereNotNull('order_id');
+	}
+
 	/* ATTRIBUTES */
 	public function price(): Attribute
 	{

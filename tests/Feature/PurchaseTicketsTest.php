@@ -8,9 +8,11 @@ use App\Models\Ticket;
 use Facades\App\TicketCodeGenerator;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use function Pest\Laravel\postJson;
+use Illuminate\Testing\Fluent\AssertableJson;
 
+use function Pest\Laravel\postJson;
 
 beforeEach(function () {
 	Mail::fake();
@@ -34,16 +36,18 @@ test('customer can purchase tickets for published concerts', function () {
 
 	$response
 		->assertStatus(Response::HTTP_CREATED)
-		->assertExactJson([
-			'amount' => 9750,
-			'confirmation_number' => $confirmation_number,
-			'email' => 'john@example.com',
-			'tickets' => [
-				['code' => 'TICKETCODE1'],
-				['code' => 'TICKETCODE2'],
-				['code' => 'TICKETCODE3'],
-			],
-		]);
+		->assertJson(fn (AssertableJson $json) =>
+			$json->where('amount', 9750)
+				->where('confirmation_number', $confirmation_number)
+				->where('email', 'john@example.com')
+				->where('tickets', fn (Collection $tickets) =>
+					$tickets->sortBy('code')->values()->toJson() === json_encode([
+						['code' => 'TICKETCODE1'],
+						['code' => 'TICKETCODE2'],
+						['code' => 'TICKETCODE3'],
+					])
+				)
+		);
 	expect($this->paymentGateway->totalCharges())->toBe(9750);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
 	$order = $concert->ordersFor(email: 'john@example.com')->first();

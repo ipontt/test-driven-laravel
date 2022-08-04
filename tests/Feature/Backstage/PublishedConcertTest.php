@@ -11,7 +11,7 @@ test('a promoter can publish their own concerts', function () {
 	$user = User::factory()->create();
 	$concert = Concert::factory()->for($user)->unpublished()->create(['ticket_quantity' => 3]);
 
-	$response = actingAs($user)->post(uri: route('backstage.published_concerts.store'), data: [
+	$response = actingAs($user)->post(uri: route('backstage.published-concerts.store'), data: [
 		'concert_id' => $concert->id,
 	]);
 
@@ -28,7 +28,7 @@ test('a concert can only be published once', function () {
 	$user = User::factory()->create();
 	$concert = Concert::factory()->for($user)->published(ticket_quantity: 3)->create();
 
-	$response = actingAs($user)->post(uri: route('backstage.published_concerts.store'), data: [
+	$response = actingAs($user)->post(uri: route('backstage.published-concerts.store'), data: [
 		'concert_id' => $concert->id,
 	]);
 
@@ -44,7 +44,7 @@ test('a promoter cannot publish another promoter\'s concerts', function () {
 	$user = User::factory()->create();
 	$concert = Concert::factory()->unpublished()->create();
 
-	$response = actingAs($user)->post(uri: route('backstage.published_concerts.store'), data: [
+	$response = actingAs($user)->post(uri: route('backstage.published-concerts.store'), data: [
 		'concert_id' => $concert->id,
 	]);
 
@@ -59,7 +59,7 @@ test('a promoter cannot publish another promoter\'s concerts', function () {
 test('a promoter cannot publish concerts that do not exist', function () {
 	$user = User::factory()->create();
 
-	$response = actingAs($user)->post(uri: route('backstage.published_concerts.store'), data: [
+	$response = actingAs($user)->post(uri: route('backstage.published-concerts.store'), data: [
 		'concert_id' => 999,
 	]);
 
@@ -70,7 +70,7 @@ test('a promoter cannot publish concerts that do not exist', function () {
 test('guests cannot publish concerts', function () {
 	$concert = Concert::factory()->unpublished()->create();
 
-	$response = post(uri: route('backstage.published_concerts.store'), data: [
+	$response = post(uri: route('backstage.published-concerts.store'), data: [
 		'concert_id' => $concert->id,
 	]);
 

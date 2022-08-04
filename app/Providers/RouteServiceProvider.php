@@ -21,6 +21,7 @@ class RouteServiceProvider extends ServiceProvider
 	{
 		Route::bind('user_concert', fn ($id) => Auth::authenticate()->concerts()->findOrFail($id));
 		Route::bind('published_concert', fn ($id) => Concert::published()->findOrFail($id));
+		Route::bind('user_published_concert', fn ($id) => Auth::authenticate()->concerts()->published()->findOrFail($id));
 
 		$this->configureRateLimiting();
 
