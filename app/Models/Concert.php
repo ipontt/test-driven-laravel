@@ -137,7 +137,7 @@ class Concert extends Model
 
 	public function revenueInDollars(): float
 	{
-		return $this->orders()->sum('amount') / 100;
+		return $this->orders()->cursor()->unique('id')->sum('amount') / 100;
 	}
 
 	public function hasOrderFor(string $email): bool

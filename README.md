@@ -273,4 +273,22 @@ public function percentSoldOut(): float
 }
 ```
 
-Laravel seems to be doing the BelongsToMany query differently now, so the duplicate Orders do not show up.
+To avoid the duplication while keeping the `order()` relationship, loading the collection itself in the `revenueInDollars()` can fix.
+
+```php
+public function revenueInDollars(): float
+{
+     return $this->orders()->cursor()->unique('id')->sum('amount') / 100;
+}
+```
+
+### Chapter 24
+
+Current model factories don't provide a direct method to multiple pivots at the same time, but it's possible to go around the belongsToMany relationship by going through the pivot hasMany -> belongsTo relationship
+
+```php
+$concert = Concert::factory()->create();
+$order = Order::factory()->has(
+    Ticket::factory()->count(3)->for($concert)
+);
+```

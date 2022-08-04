@@ -11,7 +11,7 @@
 		<div class="py-5 px-4 sm:p-6">
 			<div>
 				<h2 class="text-lg font-bold leading-6 text-gray-700">Order Total: ${{ $order->amount_in_dollars }}</h2>
-				<p class="mt-1 text-md font-light text-gray-500">Billed to card #: {{ $order->maked_card_number }}.</p>
+				<p class="mt-1 text-md font-light text-gray-500">Billed to card #: {{ $order->masked_card_number }}.</p>
 			</div>
 		</div>
 		<div class="py-5 px-4 sm:p-6">

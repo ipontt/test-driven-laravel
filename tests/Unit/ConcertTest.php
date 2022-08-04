@@ -97,9 +97,11 @@ it('can calculate the percentage of tickets sold', function () {
 
 it('can calculate the revenue in dollars', function () {
 	$concert = Concert::factory()->create();
+	$orderA = Order::factory()->create(['amount' => 9625]);
+	$orderB = Order::factory()->create(['amount' => 3850]);
 	$concert->tickets()->saveMany([
-		Ticket::factory()->for(Order::factory()->create(['amount' => 3850]))->make(),
-		Ticket::factory()->for(Order::factory()->create(['amount' => 9625]))->make(),
+		...Ticket::factory()->for($orderA)->count(2)->make(),
+		Ticket::factory()->for($orderB)->make(),
 		...Ticket::factory()->count(5)->make(),
 	]);
 

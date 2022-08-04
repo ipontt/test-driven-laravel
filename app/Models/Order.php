@@ -44,7 +44,7 @@ class Order extends Model
 		);
 	}
 
-	public function makedCardNumber(): Attribute
+	public function maskedCardNumber(): Attribute
 	{
 		return Attribute::make(
 			get: fn () => wordwrap(

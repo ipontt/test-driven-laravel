@@ -47,6 +47,44 @@
 			</div>
 		</div>
 	</section>
+	<section id="recent-orders">
+		<h2 class="max-w-7xl py-4 text-lg font-medium text-gray-500">Recent Orders</h2>
+
+		<div class="shadow sm:rounded-md sm:overflow-hidden bg-white space-y-6">
+			<div class="px-4 sm:px-6 lg:px-8">
+				<div class="flex flex-col">
+					<div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+						<div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+							<table class="min-w-full divide-y divide-gray-300">
+								<thead>
+									<tr>
+										<th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 md:pl-0">Email</th>
+										<th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Tickets</th>
+										<th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Amount</th>
+										<th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Card</th>
+										<th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Purchased</th>
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-gray-200">
+									@foreach ($orders as $order)
+										<tr>
+											<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 md:pl-0">
+												<a href="mailto:{{ $order->email }}" class="hover:text-sky-600">{{ $order->email }}</a>
+											</td>
+											<td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $order->ticketQuantity() }}</td>
+											<td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">${{ $order->amount_in_dollars }}</td>
+											<td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $order->masked_card_number }}</td>
+											<td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ date('F d, Y @ g:ia') }}</td>
+										</tr>
+									@endforeach
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
 </main>
 
 @endsection

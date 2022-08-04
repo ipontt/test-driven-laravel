@@ -37,7 +37,7 @@ it('can get the amount in dollars')
 
 it('can get the masked card number')
 	->expect(fn () => Order::factory()->make(['card_last_four' => '4242']))
-	->maked_card_number->toBe('**** **** **** 4242');
+	->masked_card_number->toBe('**** **** **** 4242');
 
 it('can be retrieved by its confirmation number', function () {
 	$confirmation_number = Str::uuid();
