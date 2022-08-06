@@ -13,7 +13,10 @@
 		</small>
 	</h1>
 
-	<span class="mr-8 text-xl font-bold">Orders</span>
+	<div class="mr-8 space-x-4">
+		<span class="text-xl font-bold">Orders</span>
+		<a href="{{ route('backstage.concert-messages.create', [$concert]) }}" class="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-offset-gray-800 p-1">Message attendees</a>
+	</div>
 </div>
 
 @endsection

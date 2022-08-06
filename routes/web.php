@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Backstage\ConcertController as BackstageConcertController;
+use App\Http\Controllers\Backstage\ConcertMessagesController;
 use App\Http\Controllers\Backstage\PublishedConcertOrdersController;
 use App\Http\Controllers\Backstage\PublishedConcertsController;
 use App\Http\Controllers\ConcertController;
@@ -21,20 +22,40 @@ Route::name('auth.')->group(function () {
 });
 
 Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(function () {
-	Route::prefix('/concerts')->name('concerts.')->controller(BackstageConcertController::class)->group(function () {
-		Route::get('/', 'index')->name('index');
-		Route::get('/create', 'create')->name('create');
-		Route::post('/', 'store')->name('store');
-		Route::get('/{user_concert}/edit', 'edit')->name('edit');
-		Route::patch('/{user_concert}', 'update')->name('update');
-	});
+	Route::prefix('/concerts')
+		->name('concerts.')
+		->controller(BackstageConcertController::class)
+		->group(function () {
+			Route::get('/', 'index')->name('index');
+			Route::get('/create', 'create')->name('create');
+			Route::post('/', 'store')->name('store');
+			Route::get('/{user_concert}/edit', 'edit')->name('edit');
+			Route::patch('/{user_concert}', 'update')->name('update');
+		});
 
-	Route::prefix('/published-concerts')->name('published-concerts.')->controller(PublishedConcertsController::class)->group(function () {
-		Route::post('/', 'store')->name('store');
-	});
+	Route::prefix('/published-concerts')
+		->name('published-concerts.')
+		->controller(PublishedConcertsController::class)
+		->group(function () {
+			Route::post('/', 'store')->name('store');
+		});
+
+	Route::prefix('/backstage/published-concerts/{user_published_concert}/orders')
+		->name('published-concert-orders.')
+		->controller(PublishedConcertOrdersController::class)
+		->group(function () {
+			Route::get('/', 'index')->name('index');
+		});
+
+	Route::prefix('/backstage/concerts/{user_concert}/messages')
+		->name('concert-messages.')
+		->controller(ConcertMessagesController::class)
+		->group(function () {
+			Route::get('/create', 'create')->name('create');
+			Route::post('/', 'store')->name('store');
+		});
 });
 
-Route::get('/backstage/published-concerts/{user_published_concert}/orders', [PublishedConcertOrdersController::class, 'index'])->name('backstage.published-concert-orders.index');
 
 /*
 Route::view('test', 'test');

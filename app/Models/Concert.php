@@ -70,6 +70,11 @@ class Concert extends Model
 		return $this->hasMany(Ticket::class);
 	}
 
+	public function attendeeMessages(): HasMany
+	{
+		return $this->hasMany(AttendeeMessage::class);
+	}
+
 	/* METHODS */
 	public function isPublished(): bool
 	{

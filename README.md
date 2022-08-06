@@ -292,3 +292,30 @@ $order = Order::factory()->has(
     Ticket::factory()->count(3)->for($concert)
 );
 ```
+
+### Chapter 25
+
+Since Laravel 6.x, the method `cursor()` allows to iterate over every single result of a query while only keeping one Eloquent model in memory at a time, lowering memory consumption. Similarly, `lazy($chunkSize = 1000)` allows to chunk the results all the while keeping them in a flattened `LazyCollection`.
+
+```php
+// ceil(User::count() / 200) queries, Collection of 200 users in memory.
+User::chunk(200, function ($users) {
+    $users->each(function (User $user) {
+        //...
+    });
+});
+```
+```php
+// Single query, only 1 model in memory at any given time.
+User::cursor()->each(function (User $user) {
+    //...
+});
+```
+```php
+// ceil(User::count() / 200) queries, only 1 model in memory at any given time.
+User::lazy(200)->each(function (User $user) {
+    //...
+});
+```
+
+Instead of `withRecipients(callback)`, I opted to keep the `recipients()->each(...)` approach. Using lazy collections and some specific PostgreSQL logic

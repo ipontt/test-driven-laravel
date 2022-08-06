@@ -20,17 +20,17 @@ class ConcertFactory extends Factory
 	{
 		return [
 			'user_id' => User::factory(),
-			'title' => $this->faker->sentence,
-			'subtitle' => $this->faker->sentence,
+			'title' => $this->faker->sentence(),
+			'subtitle' => $this->faker->sentence(),
 			'date' => $this->faker->dateTimeBetween('+2 weeks', '+1 year')->format('Y-m-d H:00:00'),
 			'ticket_price' => $this->faker->numberBetween(3000, 10000),
 			'ticket_quantity' => $this->faker->numberBetween(5, 20),
-			'venue' => $this->faker->sentence,
-			'venue_address' => $this->faker->streetAddress,
-			'city' => $this->faker->city,
-			'state' => $this->faker->stateAbbr,
-			'zip' => $this->faker->postCode,
-			'additional_information' => $this->faker->text,
+			'venue' => $this->faker->sentence(),
+			'venue_address' => $this->faker->streetAddress(),
+			'city' => $this->faker->city(),
+			'state' => $this->faker->stateAbbr(),
+			'zip' => $this->faker->postCode(),
+			'additional_information' => $this->faker->text(),
 		];
 	}
 

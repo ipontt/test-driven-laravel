@@ -17,9 +17,9 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'confirmation_number' => $this->faker->uuid,
+            'confirmation_number' => $this->faker->uuid(),
             'card_last_four' => (string) $this->faker->numberBetween(1000, 9999),
-            'email' => $this->faker->email,
+            'email' => $this->faker->email(),
             'amount' => $this->faker->numberBetween(3000, 30000),
         ];
     }

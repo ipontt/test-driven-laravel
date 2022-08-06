@@ -66,3 +66,43 @@ test('a promoter can view the 10 most recent orders for their published concert'
 			return true;
 		});
 });
+
+test('the 10 most recent orders do not include duplicates', function () {
+	$user = User::factory()->create();
+	$concert = Concert::factory()->for($user)->published(ticket_quantity: 5)->create();
+	$order = Order::factory()->create();
+	$ticket = $concert->tickets->each(fn (Ticket $ticket) => $ticket->order()->associate($order)->save());
+
+	$response = actingAs(user: $user)->get(uri: route('backstage.published-concert-orders.index', [$concert]));
+
+	$response
+		->assertStatus(Response::HTTP_OK)
+		->assertViewIs('backstage.published-concert-orders.index')
+		->assertViewHas('orders', function ($data) use ($order) {
+			expect($data)
+				->toBeCollection()
+				->toHaveCount(1)
+				->first()->toBeSameModelAs($order);
+
+			return true;
+		});
+});
+
+test('a promoter cannot view the orders of another promoter\'s published concert', function () {
+	$user = User::factory()->create();
+	$concert = Concert::factory()->published()->create();
+
+	$response = actingAs(user: $user)->get(uri: route('backstage.published-concert-orders.index', [$concert]));
+
+	$response->assertStatus(Response::HTTP_NOT_FOUND);
+});
+
+test('guests cannot view the orders of a published concert', function () {
+	$concert = Concert::factory()->published()->create();
+
+	$response = get(uri: route('backstage.published-concert-orders.index', [$concert]));
+
+	$response
+		->assertStatus(Response::HTTP_FOUND)
+		->assertRedirect(uri: route('auth.login'));
+});
