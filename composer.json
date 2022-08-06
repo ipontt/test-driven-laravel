@@ -11,9 +11,9 @@
         "guzzlehttp/guzzle": "^7.2",
         "hashids/hashids": "^4.1",
         "laravel/framework": "^9.11",
-        "laravel/sanctum": "^2.14.1",
+        "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "stripe/stripe-php": "^8.5"
+        "stripe/stripe-php": "^9.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
