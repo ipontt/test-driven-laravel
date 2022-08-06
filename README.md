@@ -319,3 +319,31 @@ User::lazy(200)->each(function (User $user) {
 ```
 
 Instead of `withRecipients(callback)`, I opted to keep the `recipients()->each(...)` approach. Using lazy collections and some specific PostgreSQL logic
+
+### Chapter 26
+
+Considering the folder where test files are stored get emptied at the start of the test, this implementation works
+```php
+$this->assertFileEquals(
+    expected: $file->getPathname(),
+    actual: Storage::disk('s3')->path("concerts/{$concert->poster_image_path}")
+);
+```
+but we could also just check the hash names.
+```php
+Storage::disk('s3')->assertExist("posters/{$file->hashName()}");
+```
+The null-safe `?->` operator in PHP8 makes it easy to deal with optional files without having to use a Null Object directly.
+
+```php
+$concert = Auth::user()
+    ->concerts()
+    ->create(attributes: $request->safe()->except(['poster_image']) + [
+        'poster_image_path' => $request->safe()->poster_image?->store(path: 'posters', options: ['disk' => 's3']),
+    ]);
+```
+The `optional()` helper can also return a null object
+```php
+$request->file('poster_image', optional())->store(path: 'posters', options: ['disk' => 's3']);
+optional($request->file('poster_image'))->store(path: 'posters', options: ['disk' => 's3']);
+```

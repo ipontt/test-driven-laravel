@@ -3,7 +3,9 @@
 use App\Models\Concert;
 use App\Models\User;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -401,4 +403,107 @@ test('ticket quantity must be at least 1', function () {
 	$response
 		->assertRedirect(uri: route('backstage.concerts.create'))
 		->assertSessionHasErrors(keys: ['ticket_quantity']);
+});
+
+test('a poster image is uploaded if included', function () {
+	Storage::fake('public');
+	$file = UploadedFile::fake()->image(name: 'poster.png', width: 850, height: 1100);
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)->post(
+		uri: route('backstage.concerts.store'),
+		data: getValidConcertData(overrides: ['poster_image' => $file]),
+	);
+	$concert = Concert::first();
+
+	expect($concert)->poster_image_path->not->toBeNull();
+	Storage::disk('public')->assertExists('posters/'.$file->hashName());
+	$this->assertFileEquals(
+		expected: $file->getPathname(),
+		actual: Storage::disk('public')->path($concert->poster_image_path),
+	);
+});
+
+
+test('poster image must be an image', function () {
+	Storage::fake('public');
+	$file = UploadedFile::fake()->create(name: 'not-a-poster.pdf');
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->from(url: route('backstage.concerts.create'))
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(overrides: ['poster_image' => $file]),
+		);
+
+	$response
+		->assertRedirect(uri: route('backstage.concerts.create'))
+		->assertSessionHasErrors(keys: ['poster_image']);
+
+	Storage::disk('public')->assertMissing('posters/'.$file->hashName());
+	Storage::disk('public')->assertDirectoryEmpty('posters');
+});
+
+test('poster image must be at least 400px wide', function () {
+	Storage::fake('public');
+	$file = UploadedFile::fake()->image(name: 'poster.png', width: 85, height: 110);
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->from(url: route('backstage.concerts.create'))
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(overrides: ['poster_image' => $file]),
+		);
+
+	$response
+		->assertRedirect(uri: route('backstage.concerts.create'))
+		->assertSessionHasErrors(keys: ['poster_image']);
+
+	Storage::disk('public')->assertMissing('posters/'.$file->hashName());
+	Storage::disk('public')->assertDirectoryEmpty('posters');
+});
+
+test('poster image must have a letter aspect ratio (8.5 / 11)', function () {
+	Storage::fake('public');
+	$file = UploadedFile::fake()->image(name: 'poster.png', width: 900, height: 1100);
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->from(url: route('backstage.concerts.create'))
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(overrides: ['poster_image' => $file]),
+		);
+
+	$response
+		->assertRedirect(uri: route('backstage.concerts.create'))
+		->assertSessionHasErrors(keys: ['poster_image']);
+
+	Storage::disk('public')->assertMissing('posters/'.$file->hashName());
+	Storage::disk('public')->assertDirectoryEmpty('posters');
+});
+
+test('poster image is optional', function () {
+	Storage::fake('public');
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(overrides: ['poster_image' => null]),
+		);
+	$concert = Concert::first();
+
+	$response
+		->assertStatus(Response::HTTP_FOUND)
+		->assertSessionHasNoErrors()
+		->assertRedirect(uri: route('concerts.show', [$concert]));
+
+	expect($concert)
+		->poster_image_path->toBeNull()
+		->user->is($user)->toBeTrue();
+
+	Storage::disk('public')->assertDirectoryEmpty('posters');
 });

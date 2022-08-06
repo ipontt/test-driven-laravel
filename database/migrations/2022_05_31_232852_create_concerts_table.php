@@ -23,6 +23,7 @@ return new class extends Migration
 			$table->string('zip');
 			$table->text('additional_information')->nullable();
 			$table->dateTime('published_at')->nullable();
+			$table->string('poster_image_path')->nullable();
 			$table->timestamps();
 		});
 	}

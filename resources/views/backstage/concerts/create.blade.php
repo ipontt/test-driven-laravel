@@ -13,7 +13,7 @@
 @section('content')
 
 <main class="mx-auto max-w-2xl lg:max-w-4xl">
-	<form action="{{ route('backstage.concerts.store') }}" method="POST">
+	<form action="{{ route('backstage.concerts.store') }}" method="POST" enctype="multipart/form-data">
 		@csrf
 		<div>
 			<div class="md:grid md:grid-cols-3 md:gap-6">
@@ -166,8 +166,8 @@
 									</div>
 								</div>
 								<div>
-									<label for="ticket_quantity" class="block text-sm font-medium text-gray-700">Tickets Available</label>
-									<input type="number" name="ticket-quantity" id="ticket_quantity" class="mt-1 focus:ring-sky-500 focus:border-sky-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" min="1">
+									<label for="ticket-quantity" class="block text-sm font-medium text-gray-700">Tickets Available</label>
+									<input type="number" name="ticket_quantity" id="ticket-quantity" class="mt-1 focus:ring-sky-500 focus:border-sky-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" min="1">
 								</div>
 							</div>
 						</div>
@@ -182,8 +182,33 @@
 			</div>
 		</div>
 
+		<div class="mt-10 sm:mt-0">
+			<div class="md:grid md:grid-cols-3 md:gap-6">
+				<div class="md:col-span-1">
+					<div class="px-4 sm:px-0">
+						<h3 class="text-lg font-medium leading-6 text-gray-900">Concert Poster</h3>
+						<p class="mt-1 text-sm text-gray-600">Have a sweet poster for this concert? Upload it here and it'll be included in the checkout page.</p>
+					</div>
+				</div>
+				<div class="mt-5 md:mt-0 md:col-span-2">
+					<div class="shadow sm:rounded-md sm:overflow-hidden">
+						<div class="px-4 py-5 bg-white sm:p-6">
+							<label for="poster-image" class="block text-sm font-medium text-gray-700">Poster Image</label>
+							<input type="file" name="poster_image" id="poster-image" class="file:py-2 file:px-4 file:border file:border-transparent file:rounded-md file:text-white file:bg-sky-600 hover:file:bg-sky-700 file:cursor-pointer focus:file:outline-none focus:file:ring-2 focus:file:ring-offset-2 focus:file:ring-sky-500 file:m-1 file:mr-4 file:text-sm text-sm m-1">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="hidden sm:block" aria-hidden="true">
+			<div class="py-5">
+				<div class="border-t border-gray-200"></div>
+			</div>
+		</div>
+
 		<div class="mt-10 sm:mt-0 flex justify-end">
-			<button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">Save</button>
+			<button type="submit" class="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">Save</button>
 		</div>
 	</form>
 </main>

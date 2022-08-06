@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\ImageFile;
 
 use function vsprintf;
 
@@ -30,6 +32,7 @@ class StoreConcertRequest extends FormRequest
 			 'zip' => ['required'],
 			 'ticket_price' => ['required', 'numeric', 'min:500'],
 			 'ticket_quantity' => ['required', 'numeric', 'integer', 'min:1'],
+			 'poster_image' => ['nullable', (new ImageFile)->dimensions(Rule::dimensions()->minWidth(400)->ratio(8.5 / 11))],
 		];
 	}
 }

@@ -36,7 +36,9 @@ class ConcertController extends Controller
 	{
 		$concert = Auth::user()
 			->concerts()
-			->create(attributes: $request->validated());
+			->create(attributes: $request->safe()->except(['poster_image']) + [
+				'poster_image_path' => $request->safe()->poster_image?->store(path: 'posters', options: ['disk' => 'public']),
+			]);
 
 		return response()->redirectToRoute('concerts.show', [$concert]);
 	}
