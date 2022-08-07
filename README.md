@@ -317,8 +317,19 @@ User::lazy(200)->each(function (User $user) {
     //...
 });
 ```
-
 Instead of `withRecipients(callback)`, I opted to keep the `recipients()->each(...)` approach. Using lazy collections and some specific PostgreSQL logic
+```php
+public function recipients(): LazyCollection
+{
+    return $this->concert->orders()                 // get BelongsToMany object
+        ->getQuery()                                // get Builder object so we can override select values
+        ->distinct()->select('email')               // get only the emails column, make it distinct
+        ->lazyById(chunkSize: 20, column: 'email')  // chunk lazily. Default column is 'id'.
+                                                    // since 'id' is not present in select clause,
+                                                    // PostgreSQL will throw an error so we specify email.
+        ->pluck('email');                           // pluck 'email' column, returning a "chunked" LazyCollection of emails.
+}
+```
 
 ### Chapter 26
 
@@ -346,4 +357,33 @@ The `optional()` helper can also return a null object
 ```php
 $request->file('poster_image', optional())->store(path: 'posters', options: ['disk' => 's3']);
 optional($request->file('poster_image'))->store(path: 'posters', options: ['disk' => 's3']);
+```
+
+### Chapter 27
+
+Creating an Event fired at the only place in the application where a Concert is created seems a bit unnecessary considering Eloquent provides events of its own.
+
+Instead of having to do `ConcertAdded::dispatch($concert)`, we can simply attach a listener to the `Concert::created` event. Admittedly, this can cause trouble if we decide to create concerts somewhere else in the application, or even in factories and seeders.
+
+Laravel provides a way to test if a listener is attached to an event with `Event::assertListening`.
+```php
+Event::assertListening(
+    expectedEvent: ConcertAdded::class,
+    expectedListener: SchedulePosterImageProcessing::class,
+);
+```
+
+### Chapter 28
+
+Instead of using `getimagesizefromstring(string $string, &$image_info = null)`, we can use `getimagesize(string $filename, &$image_info = null)` passing the path, but that might not work with non-local drivers
+
+```php
+$resizedImage = Storage::disk(name: 'public')->get(path: 'posters/example-poster.png');
+
+[$width] = getimagesizefromstring(string: $resizedImage);
+```
+```php
+$resizedImagePath = Storage::disk(name: 'public')->path(path: 'posters/example-poster.png');
+
+[$width] = getimagesize(filename: $resizedImagePath);
 ```

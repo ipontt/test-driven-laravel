@@ -1,10 +1,13 @@
 <?php
 
+use App\Events\ConcertAdded;
+use App\Listeners\SchedulePosterImageProcessing;
 use App\Models\Concert;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
@@ -27,6 +30,7 @@ function getValidConcertData(array $overrides = []): array
 			'zip' => '17916',
 			'ticket_price' => '32.50',
 			'ticket_quantity' => '75',
+			'poster_image' => null,
 		],
 		$overrides
 	);
@@ -418,10 +422,6 @@ test('a poster image is uploaded if included', function () {
 
 	expect($concert)->poster_image_path->not->toBeNull();
 	Storage::disk('public')->assertExists('posters/'.$file->hashName());
-	$this->assertFileEquals(
-		expected: $file->getPathname(),
-		actual: Storage::disk('public')->path($concert->poster_image_path),
-	);
 });
 
 
@@ -506,4 +506,23 @@ test('poster image is optional', function () {
 		->user->is($user)->toBeTrue();
 
 	Storage::disk('public')->assertDirectoryEmpty('posters');
+});
+
+test('an event is fired when a concert is added', function () {
+	$e = Event::fake(eventsToFake: [ConcertAdded::class]);
+	$user = User::factory()->create();
+
+	$response = actingAs(user: $user)
+		->post(
+			uri: route('backstage.concerts.store'),
+			data: getValidConcertData(),
+		);
+
+	Event::assertDispatched(event: ConcertAdded::class, callback: function (ConcertAdded $event) {
+		return $event->concert->is(Concert::firstOrFail());
+	});
+	Event::assertListening(
+		expectedEvent: ConcertAdded::class,
+		expectedListener: SchedulePosterImageProcessing::class,
+	);
 });

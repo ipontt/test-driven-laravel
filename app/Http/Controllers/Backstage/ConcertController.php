@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backstage;
 
+use App\Events\ConcertAdded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreConcertRequest;
 use App\Http\Requests\UpdateConcertRequest;
@@ -36,9 +37,11 @@ class ConcertController extends Controller
 	{
 		$concert = Auth::user()
 			->concerts()
-			->create(attributes: $request->safe()->except(['poster_image']) + [
-				'poster_image_path' => $request->safe()->poster_image?->store(path: 'posters', options: ['disk' => 'public']),
+			->create(attributes: $request->safe()->except('poster_image') + [
+				'poster_image_path' => $request->safe()?->poster_image?->store(path: 'posters', options: ['disk' => 'public']),
 			]);
+
+		ConcertAdded::dispatch($concert);
 
 		return response()->redirectToRoute('concerts.show', [$concert]);
 	}

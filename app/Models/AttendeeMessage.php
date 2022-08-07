@@ -9,25 +9,25 @@ use Illuminate\Support\LazyCollection;
 
 class AttendeeMessage extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    protected $guarded = [];
+	protected $guarded = [];
 
-    /* RELATIONSHIPS */
-    public function concert(): BelongsTo
-    {
-        return $this->belongsTo(Concert::class);
-    }
+	/* RELATIONSHIPS */
+	public function concert(): BelongsTo
+	{
+		return $this->belongsTo(Concert::class);
+	}
 
-    /* METHODS */
-    public function recipients(): LazyCollection
-    {
-        // some PostgreSQL magic
-        return $this->concert
-            ->orders() // get concert -> orders relationship
-            ->getQuery() // get query
-            ->distinct()->select('email') // override select statement instead of adding to it.
-            ->lazyById(chunkSize: 20, column: 'email') // override ordering column so postgresql won't complain about it not being present in select
-            ->pluck('email');
-    }
+	/* METHODS */
+	public function recipients(): LazyCollection
+	{
+		// some PostgreSQL magic
+		return $this->concert
+			->orders() // get concert -> orders relationship
+			->getQuery() // get query
+			->distinct()->select('email') // override select statement instead of adding to it.
+			->lazyById(chunkSize: 20, column: 'email') // override ordering column so postgresql won't complain about it not being present in select
+			->pluck('email');
+	}
 }
