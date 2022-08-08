@@ -7,10 +7,11 @@
 		<div class="max-w-md w-full space-y-8">
 			<div>
 				<img class="mx-auto h-12 w-auto" src="{{ asset('small-logo-pest.png') }}" alt="Logo">
-				<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-700">Sign in to your account</h2>
+				<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-700">Join TicketBeast</h2>
 			</div>
-			<form class="mt-8 space-y-6" action="{{ route('auth.login') }}" method="POST">
+			<form class="mt-8 space-y-6" action="{{ route('auth.register') }}" method="POST">
 				@csrf
+				<input type="hidden" name="invitation_code" value="{{ $invitation->code }}">
 				<div class="rounded-md shadow-sm -space-y-px">
 					<div>
 						<label for="email" class="sr-only">Email address</label>
@@ -40,7 +41,7 @@
 						<span class="absolute left-0 inset-y-0 flex items-center pl-3">
 							<x-heroicon-s-lock-closed class="h-5 w-5 text-sky-500 group-hover:text-sky-400" />
 						</span>
-						Log in
+						Create Account
 					</button>
 				</div>
 

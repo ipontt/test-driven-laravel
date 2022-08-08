@@ -6,8 +6,7 @@
 	<p>You can view your tickets at any time by visiting the following URL:</p>
 
 	<p>
-		<a href="{{ \route('orders.show', [$order]) }}">{{ \route('orders.show', [$order]) }}</a>
+		<a href="{{ route('orders.show', [$order]) }}">{{ route('orders.show', [$order]) }}</a>
 	</p>	
 </body>
 </html>
-

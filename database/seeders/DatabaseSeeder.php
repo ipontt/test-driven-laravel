@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Concert;
+use App\Models\Invitation;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -32,5 +33,8 @@ class DatabaseSeeder extends Seeder
 
 		Concert::factory()->unpublished()->count(10)->create();
 		Concert::factory()->published()->count(10)->create();
+
+		Invitation::factory()->used(user: $user)->create();
+		Invitation::factory()->unused()->create();
 	}
 }

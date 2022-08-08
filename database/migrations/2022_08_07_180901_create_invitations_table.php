@@ -8,18 +8,19 @@ return new class extends Migration
 {
 	public function up(): void
 	{
-		Schema::create('users', function (Blueprint $table) {
+		Schema::create('invitations', function (Blueprint $table) {
 			$table->id();
+			$table->foreignId('user_id')->nullable()->constrained('users')->onUpdate('cascade')->onDelete('restrict');
+			$table->uuid('code');
 			$table->string('email')->unique();
-			$table->timestamp('email_verified_at')->nullable();
-			$table->string('password');
-			$table->rememberToken();
 			$table->timestamps();
 		});
 	}
 
 	public function down(): void
 	{
-		Schema::dropIfExists('users');
+		Schema::table('invitations', fn (Blueprint $table) => $table->dropForeign(['user_id']));
+
+		Schema::dropIfExists('invitations');
 	}
 };

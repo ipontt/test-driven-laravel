@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Billing\Charge;
+use App\Models\Traits\ResolvesUUIDFields;
 use App\Reservation;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ use function wordwrap;
 class Order extends Model
 {
 	use HasFactory;
+	use ResolvesUUIDFields;
 
 	protected $guarded = [];
 

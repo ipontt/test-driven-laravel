@@ -68,6 +68,7 @@ test('adding a valid concert', function () {
 		'zip' => '17916',
 		'ticket_price' => '32.50',
 		'ticket_quantity' => '75',
+		'poster_image' => null,
 	]);
 	$concert = Concert::first();
 

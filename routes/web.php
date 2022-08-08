@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backstage\ConcertController as BackstageConcertController;
 use App\Http\Controllers\Backstage\ConcertMessagesController;
 use App\Http\Controllers\Backstage\PublishedConcertOrdersController;
 use App\Http\Controllers\Backstage\PublishedConcertsController;
 use App\Http\Controllers\ConcertController;
 use App\Http\Controllers\ConcertOrdersController;
+use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +21,8 @@ Route::name('auth.')->group(function () {
 	Route::view('/login', 'auth.login')->middleware('guest')->name('show-login');
 	Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login');
 	Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+
+	Route::post('/register', RegisterController::class)->name('register');
 });
 
 Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(function () {
@@ -56,6 +60,7 @@ Route::prefix('/backstage')->name('backstage.')->middleware(['auth'])->group(fun
 		});
 });
 
+Route::get('invitations/{invitation:code}', [InvitationsController::class, 'show'])->name('invitations.show');
 
 /*
 Route::view('test', 'test');

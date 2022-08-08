@@ -387,3 +387,28 @@ $resizedImagePath = Storage::disk(name: 'public')->path(path: 'posters/example-p
 
 [$width] = getimagesize(filename: $resizedImagePath);
 ```
+
+### Chapter 29
+
+Using route model binding, a `findByCode` method doesn't need to exist for the routing part.
+
+```php
+Route::get('invitation/{code}');
+...
+public function show($code)
+{
+    $invitation = Invitation::findByCode($code);
+
+    return view('invitations.show', ['invitation' => $invitation]);
+}
+```
+becomes
+```php
+Route::get('invitation/{invitation:code}');
+...
+public function show(Invitation $invitation)
+{
+    return view('invitations.show', ['invitation' => $invitation]);
+}
+```
+Considering the invitation code should not really be something visible, I'll opt for using `Str::uuid()` instead of creating a generator.
