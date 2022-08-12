@@ -38,6 +38,7 @@ class ConcertOrdersController extends Controller
 			$order = $reservation->complete(
 				paymentGateway: $this->paymentGateway,
 				paymentToken: $validated['payment_token'],
+				destination_account_id: $concert->user->stripe_account_id,
 			);
 
 			Mail::to($order->email)->send(new OrderConfirmationEmail(order: $order));

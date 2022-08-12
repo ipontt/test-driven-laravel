@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use function redirect;
+use function route;
 
 class RedirectIfAuthenticated
 {
@@ -25,7 +26,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                return redirect(route('backstage.concerts.index'));
             }
         }
 

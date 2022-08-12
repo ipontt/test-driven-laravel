@@ -15,15 +15,19 @@ use function response;
 
 class RouteServiceProvider extends ServiceProvider
 {
-	public const HOME = '/home';
-
 	public function boot(): void
 	{
-		Route::bind('user_concert', fn ($id) => Auth::authenticate()->concerts()->findOrFail($id));
-		Route::bind('published_concert', fn ($id) => Concert::published()->findOrFail($id));
-		Route::bind('user_published_concert', fn ($id) => Auth::authenticate()->concerts()->published()->findOrFail($id));
+		Route::bind('user_concert', function ($concert_id) {
+			return Auth::authenticate()->concerts()->findOrFail($concert_id);
+		});
 
-		$this->configureRateLimiting();
+		Route::bind('published_concert', function ($concert_id) {
+			return Concert::published()->findOrFail($concert_id);
+		});
+
+		Route::bind('user_published_concert', function ($concert_id) {
+			return Auth::authenticate()->concerts()->published()->findOrFail($concert_id);
+		});
 
 		$this->routes(function () {
 			Route::middleware('api')
@@ -32,13 +36,6 @@ class RouteServiceProvider extends ServiceProvider
 
 			Route::middleware('web')
 				->group(base_path('routes/web.php'));
-		});
-	}
-
-	protected function configureRateLimiting(): void
-	{
-		RateLimiter::for('api', function (Request $request) {
-			return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
 		});
 	}
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ \str_replace(subject: \app()->getLocale(), search: '_', replace: '-') }}" class="relative">
+<html lang="{{ str_replace(subject: app()->getLocale(), search: '_', replace: '-') }}" class="relative">
 <head>
 	<meta charset="UTF-8">
-	<meta name="csrf-token" content="{{ \csrf_token() }}">
-	<link rel="icon" href="{{ \asset('favicon.ico') }}">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<link rel="icon" href="{{ asset('favicon.ico') }}">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>@yield('title', 'TicketBeast')</title>
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -17,12 +17,12 @@
 				<div class="relative flex items-center justify-between h-16">
 					<div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
 						<div class="flex-shrink-0 flex items-center">
-							<img class="block sm:hidden h-8 w-auto" src="{{ \asset('favicon.ico') }}" alt="Logo">
-							<img class="hidden sm:block h-8 w-auto" src="{{ \asset('small-logo-pest.png') }}" alt="Logo">
+							<img class="block sm:hidden h-8 w-auto" src="{{ asset('favicon.ico') }}" alt="Logo">
+							<img class="hidden sm:block h-8 w-auto" src="{{ asset('small-logo-pest.png') }}" alt="Logo">
 						</div>
 					</div>
 					<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-						<form action="{{ \route('auth.logout') }}" method="POST">
+						<form action="{{ route('auth.logout') }}" method="POST">
 							@csrf
 							<button type="submit" class="bg-gray-800 p-1 text-gray-100 font-bold hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">Log out</button>
 						</form>

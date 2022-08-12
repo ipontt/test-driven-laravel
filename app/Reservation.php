@@ -23,12 +23,16 @@ class Reservation
 		return $this->tickets->sum('price');
 	}
 
-	public function complete(PaymentGateway $paymentGateway, string $paymentToken): Order
+	public function complete(PaymentGateway $paymentGateway, string $paymentToken, string $destination_account_id): Order
 	{
 		return Order::forTickets(
 			tickets: $this->tickets,
 			email: $this->email,
-			charge: $paymentGateway->charge(amount: $this->totalCost(), token: $paymentToken),
+			charge: $paymentGateway->charge(
+				amount: $this->totalCost(),
+				token: $paymentToken,
+				destination_account_id: $destination_account_id,
+			),
 		);
 	}
 

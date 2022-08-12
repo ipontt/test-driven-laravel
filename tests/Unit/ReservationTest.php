@@ -51,7 +51,8 @@ it('creates an order when a reservation is completed', function () {
 
 	$order = $reservation->complete(
 		paymentGateway: $paymentGateway,
-		paymentToken: $paymentGateway->getValidTestToken()
+		paymentToken: $paymentGateway->getValidTestToken(),
+		destination_account_id: 'test_acc_1234',
 	);
 
 	expect($order)
@@ -59,5 +60,5 @@ it('creates an order when a reservation is completed', function () {
 		->amount->toBe(3000)
 		->email->toBe('john@example.com')
 		->ticketQuantity()->toBe(3)
-		->and($paymentGateway)->totalCharges()->toBe(3000);
+		->and($paymentGateway)->totalChargesFor(account_id: 'test_acc_1234')->toBe(3000);
 });

@@ -14,7 +14,12 @@ class DatabaseSeeder extends Seeder
 {
 	public function run(): void
 	{
-		$user = User::factory()->create(['email' => 'a@q.cl', 'password' => Hash::make(1234)]);
+		$user = User::factory()->create([
+			'email' => 'a@q.cl',
+			'password' => Hash::make(1234),
+			'stripe_account_id' => null,
+			'stripe_access_token' => null,
+		]);
 
 		Concert::factory()->for($user)->published(ticket_quantity: 10)->create([
 			'title' => 'The Red Chord',

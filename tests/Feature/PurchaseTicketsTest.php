@@ -5,13 +5,13 @@ use App\Billing\FakePaymentGateway;
 use App\Mail\OrderConfirmationEmail;
 use App\Models\Concert;
 use App\Models\Ticket;
+use App\Models\User;
 use Facades\App\TicketCodeGenerator;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
-
 use function Pest\Laravel\postJson;
 
 beforeEach(function () {
@@ -26,7 +26,8 @@ beforeEach(function () {
 test('customer can purchase tickets for published concerts', function () {
 	$confirmation_number = (string) Str::freezeUuids();
 	TicketCodeGenerator::shouldReceive('generateFor')->andReturn('TICKETCODE1', 'TICKETCODE2', 'TICKETCODE3');
-	$concert = Concert::factory()->published(ticket_quantity: 3)->create(['ticket_price' => 3250]);
+	$user = User::factory()->create(['stripe_account_id' => 'test_stripe_account_id']);
+	$concert = Concert::factory()->for($user)->published(ticket_quantity: 3)->create(['ticket_price' => 3250]);
 
 	$response = postJson("/concerts/{$concert->id}/orders", [
 		'email' => 'john@example.com',
@@ -48,7 +49,7 @@ test('customer can purchase tickets for published concerts', function () {
 					])
 				)
 		);
-	expect($this->paymentGateway->totalCharges())->toBe(9750);
+	expect($this->paymentGateway->totalChargesFor(account_id: 'test_stripe_account_id'))->toBe(9750);
 	expect($concert)->hasOrderFor(email: 'john@example.com')->toBeTrue();
 	$order = $concert->ordersFor(email: 'john@example.com')->first();
 	expect($order)

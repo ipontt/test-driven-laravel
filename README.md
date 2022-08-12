@@ -412,3 +412,43 @@ public function show(Invitation $invitation)
 }
 ```
 Considering the invitation code should not really be something visible, I'll opt for using `Str::uuid()` instead of creating a generator.
+
+### Chapter 30
+
+I don't think Stripe requires you to create an application before giving you access to the test mode client id. Setting up the redirect uri can be done at [https://dashboard.stripe.com/settings/connect](https://dashboard.stripe.com/settings/connect)
+
+Another way to make sure all backstage routes are under a specific middleware, taking into account future routes as well, is to get all the routes and filter them instead of hardcoding them in the test.
+
+```php
+test('middleware is applied to all backstage routes except for the stripe-connect routes', function () {
+    collect(Route::getRoutes()->getIterator())
+        ->filter(fn ($route) => str($route->action['prefix'])->test('/^(backstage)(?!\/stripe-connect)/'))
+        ->each(fn ($route) => expect($route)->gatherMiddleware()->toContain(ForceStripeAccount::class));
+
+});
+```
+
+Stripe current API has deprecated the `destination` parameter in favor of `transfer_data`. The data about the transfer has also been appended in the Charge object's `transfer_data` property, so even if the transfer id is still returned, it's no longer necessary to fetch the transfer object just to check the amount.
+
+```php
+$stripeCharge = $this->stripe->charges->create(
+    params: [
+        'amount' => $amount,
+        'source' => $token,
+        'currency' => 'usd',
+        'transfer_data' => [
+            'destination' => $destination_account_id,
+            'amount' => $amount * 0.90,
+        ],
+    ],
+);
+```
+```php
+$lastCharge = Arr::first($this->stripe->charges->all(params: ['limit' => 1])['data']);
+
+expect($lastCharge)
+    ->amount->toEqual(5000)
+    ->and($lastCharge->transfer_data)
+        ->destination->toEqual(env('STRIPE_TEST_PROMOTER_ACCOUNT_ID'))
+        ->amount->toEqual(4500);
+```

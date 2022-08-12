@@ -6,6 +6,7 @@ use App\Billing\Concerns\PaymentGateway;
 use App\Billing\Stripe\StripePaymentGateway;
 use App\HashidsTicketCodeGenerator;
 use App\TicketCodeGenerator;
+use Illuminate\Routing\ResponseFactory;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -40,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        ResponseFactory::macro('redirectAway', function (string $path, int $status = 302, array $headers = []) {
+            return $this->redirector->away($path, $status, $headers);
+        });
     }
 }

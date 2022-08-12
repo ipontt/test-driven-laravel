@@ -25,7 +25,7 @@ class StripePaymentGateway implements PaymentGateway
 		$this->stripe = new StripeClient($apiKey);
 	}
 
-	public function charge(int $amount, string $token): Charge
+	public function charge(int $amount, string $token, string $destination_account_id): Charge
 	{
 		try {
 			$stripeCharge = $this->stripe->charges->create(
@@ -33,6 +33,10 @@ class StripePaymentGateway implements PaymentGateway
 					'amount' => $amount,
 					'source' => $token,
 					'currency' => 'usd',
+					'transfer_data' => [
+						'destination' => $destination_account_id,
+						'amount' => $amount * 0.90,
+					],
 				],
 			);
 		} catch (InvalidRequestException $e) {
@@ -42,6 +46,7 @@ class StripePaymentGateway implements PaymentGateway
 		return new Charge(
 			amount: $stripeCharge->amount,
 			cardLastFour: $stripeCharge->source->last4,
+			destination: $destination_account_id,
 		);
 	}
 
