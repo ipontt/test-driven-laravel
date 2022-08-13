@@ -452,3 +452,37 @@ expect($lastCharge)
         ->destination->toEqual(env('STRIPE_TEST_PROMOTER_ACCOUNT_ID'))
         ->amount->toEqual(4500);
 ```
+
+## Afterthoughts
+
+Accepting payments in the server using Stripe's `checkout.js` is considered Legacy ( https://stripe.com/docs/payments/checkout/migration ). The current way of accepting payments passes the burden onto Stripe.
+
+There is an alternative to process payments in the server, but it is currently in BETA ( https://stripe.com/docs/payments/finalize-payments-on-the-server ). It also involves using Stripe Elements to collect the credit card information and switching to using the `PaymentIntent`.
+
+The flow goes from
+
+ 1. Pick a ticket quantity
+ 2. Click on button to buy tickets
+ 3. Stripe checkout modal opens
+ 4. Input email and credit card information
+ 5. Submit form
+ 6. Client makes a request to Stripe passing the credit card information and gets back a payment token
+ 7. Client makes a request to the Server with ticket quantity and payment token
+ 8. Server creates a Charge with payment token and returns an Order
+ 9. Client redirects to a success page
+
+To
+
+ 1. Pick a ticket quantity
+ 2. Click on button to buy tickets
+ 3. Client makes a request to Stripe passing the amount to create a Payment Intent and get back a secret
+ 4. Mount Stripe Elements using the secret
+ 5. Input email and credit card information and country
+ 6. Submit form
+ 7. Update Payment Intent
+ 8. Make a request to the server with secret
+ 9. Confirm Payment Intent
+ 10. Client redirects to a success page
+
+ The payment gateways must be overhauled for this to work.
+ 
