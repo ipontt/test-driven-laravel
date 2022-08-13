@@ -40,6 +40,9 @@
 		<div class="py-5 px-4 sm:p-6">
 			<x-ticket-checkout :concert="$concert" />
 		</div>
+		<div class="py-5 px-4 sm:p-6">
+			<livewire:ticket-checkout :original_price="$concert->ticket_price" />
+		</div>
 	</div>
 </main>
 

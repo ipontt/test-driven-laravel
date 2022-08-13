@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
+Route::post('/test', fn () => dd(request()->all()));
+
 Route::get('/concerts/{published_concert}', [ConcertController::class, 'show'])->name('concerts.show');
 
 Route::post('/concerts/{published_concert}/orders', [ConcertOrdersController::class, 'store'])->name('concerts.orders.store');

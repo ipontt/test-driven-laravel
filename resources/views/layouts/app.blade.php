@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>@yield('title', 'TicketBeast')</title>
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
+	@livewireStyles
 	@stack('head-scripts')
 	@stack('styles')
 </head>
@@ -40,6 +41,7 @@
 	</div>
 
 	<footer class="bg-gray-800 text-gray-500 text-center py-8 absolute w-full left-0 bottom-0">&copy; TicketBeast 2022</footer>
+	@livewireScripts
 	@stack('body-scripts')
 </body>
 </html>
