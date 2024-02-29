@@ -59,6 +59,8 @@ jobs:
         DB_DATABASE: laravel_test
         DB_PASSWORD: "1234"
         DB_USERNAME: root
+        STRIPE_SECRET: sk_test_4eC39HqLyjWDarjtT1zdp7dc
+        STRIPE_KEY: pk_test_TYooMQauvdEDq54NiTphI7jx
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
