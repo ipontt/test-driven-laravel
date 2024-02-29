@@ -21,7 +21,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: laravel_test
         ports:
           - 3306:3306
@@ -43,11 +43,12 @@ jobs:
     - name: Set up Laravel environment
       run: cp .env.example .env && php artisan key:generate --ansi
 
-    - name: Run database migrations
-      run: php artisan migrate --force
-
     - name: Run Pest tests
       run: vendor/bin/pest --coverage
+      env:
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        DB_DATABASE: laravel_test
+        DB_USERNAME: root
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
