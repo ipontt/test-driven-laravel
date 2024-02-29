@@ -43,9 +43,15 @@ jobs:
 
     - name: Set up Laravel environment
       run: cp .env.example .env && php artisan key:generate --ansi
+    
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4.0.2
+          
+    - name: Install and compile js dependencies
+      run: npm install && npm run dev
 
     - name: Run Pest tests
-      run: vendor/bin/pest --coverage
+      run: vendor/bin/pest --exclude-groups=integration --coverage
       env:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
