@@ -1,60 +1,59 @@
-name: tests
+name: Test Laravel App
 
 on:
   push:
     branches:
       - master
   pull_request:
-  schedule:
-    - cron: '0 0 * * *'
+    branches:
+      - master
 
 jobs:
-  linux_tests:
-    runs-on: ubuntu-22.04
+  laravel-tests:
+    name: Run PHPUnit and Pest tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php: [8.2, 8.3]
 
     services:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: forge
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel_test
         ports:
-          - 33306:3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.2]
-        stability: [prefer-stable]
-
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, redis-phpredis/phpredis@5.3.7, igbinary, msgpack, lzf, zstd, lz4, memcached, gmp, :php-psr
-          ini-values: error_reporting=E_ALL
-          tools: composer:v2
-          coverage: none
+    - name: Set up PHP ${{ matrix.php }}
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, pdo, mysql, xml, curl, exif, bcmath, gd, imagick, intl, zip
 
-      - name: Install dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
+    - name: Install Composer dependencies
+      run: composer install --no-progress --no-suggest
 
-      - name: Execute tests
-        run: vendor/bin/pest --display-deprecation
-        env:
-          DB_PORT: ${{ job.services.mysql.ports[3306] }}
-          DB_USERNAME: root
+    - name: Set up Laravel environment
+      run: php artisan key:generate --ansi
 
+    - name: Run database migrations
+      run: php artisan migrate --env=testing --force
+
+    - name: Run PHPUnit tests
+      run: vendor/bin/phpunit
+
+    - name: Run Pest tests
+      run: vendor/bin/pest --coverage
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage/
