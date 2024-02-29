@@ -48,7 +48,7 @@ jobs:
       uses: actions/setup-node@v4.0.2
           
     - name: Install and compile js dependencies
-      run: npm install && npm run dev
+      run: npm install && npm run build
 
     - name: Run Pest tests
       run: vendor/bin/pest --exclude-groups=integration --coverage
