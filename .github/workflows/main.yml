@@ -38,16 +38,13 @@ jobs:
         extensions: mbstring, pdo, mysql, xml, curl, exif, bcmath, gd, imagick, intl, zip
 
     - name: Install Composer dependencies
-      run: composer install --no-progress --no-suggest
+      run: composer install --no-progress
 
     - name: Set up Laravel environment
-      run: php artisan key:generate --ansi
+      run: cp .env.example .env && php artisan key:generate --ansi
 
     - name: Run database migrations
-      run: php artisan migrate --env=testing --force
-
-    - name: Run PHPUnit tests
-      run: vendor/bin/phpunit
+      run: php artisan migrate --force
 
     - name: Run Pest tests
       run: vendor/bin/pest --coverage
