@@ -51,7 +51,7 @@ jobs:
       run: npm install && npm run build
 
     - name: Run Pest tests
-      run: vendor/bin/pest --exclude-groups=integration --coverage
+      run: vendor/bin/pest --exclude-group=integration --coverage
       env:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
