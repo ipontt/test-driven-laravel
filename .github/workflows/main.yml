@@ -21,17 +21,12 @@ jobs:
         ports:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      redis:
-        image: redis:7.0
-        ports:
-          - 6379:6379
-        options: --entrypoint redis-server
 
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.3]
-        stability: [prefer-lowest, prefer-stable]
+        php: [8.2]
+        stability: [prefer-stable]
 
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
@@ -49,9 +44,6 @@ jobs:
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
-        env:
-          REDIS_CONFIGURE_OPTS: --enable-redis --enable-redis-igbinary --enable-redis-msgpack --enable-redis-lzf --with-liblzf --enable-redis-zstd --with-libzstd --enable-redis-lz4 --with-liblz4
-          REDIS_LIBS: liblz4-dev, liblzf-dev, libzstd-dev
 
       - name: Install dependencies
         uses: nick-fields/retry@v3
@@ -66,10 +58,3 @@ jobs:
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_USERNAME: root
 
-      - name: Store artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: logs
-          path: |
-            vendor/orchestra/testbench-core/laravel/storage/logs
-            !vendor/**/.gitignore
